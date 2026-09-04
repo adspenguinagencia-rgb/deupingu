@@ -22,7 +22,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 export type Crush = { de: string; para: string };
 export type Mensagem = { id: string; de: string; para: string; texto: string };
-export type Conta = { email: string; senha: string; userId: string };
+export type Conta = { email: string; senha: string; userId: string; chave?: string };
 export type Voto = { de: string; para: string; tipo: "legal" | "confiavel" | "sexy" };
 export type Reacao = { alvo: string; de: string; tipo: "like" | "dislike" };
 export type Comentario = {
@@ -401,6 +401,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
       sexo: dados.sexo,
       idadePublica: dados.idadePublica !== false,
     };
+    const chaveRecuperacao = Array.from({ length: 8 }, () => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
     const sb = getSupabase();
     if (sb && email && dados.senha && email.includes("@")) {
       const { data, error } = await sb.auth.signUp({ email, password: dados.senha });
@@ -424,13 +425,13 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
       euId: novo.id,
       usuariosExtra: upsertUser(s.usuariosExtra, novo),
       contas: email
-        ? [...s.contas.filter((c) => c.email !== email), { email, senha: dados.senha || "", userId: novo.id }]
+        ? [...s.contas.filter((c) => c.email !== email), { email, senha: dados.senha || "", userId: novo.id, chave: chaveRecuperacao }]
         : s.contas,
     }));
     if (sb && email && !email.includes("@") && dados.senha) {
-      await sb.from("contas_cpf").upsert({ cpf: email, senha: dados.senha, nome: novo.nome, cidade: novo.cidade, uf: novo.uf || "", user_id: novo.id });
+      await sb.from("contas_cpf").upsert({ cpf: email, senha: dados.senha, nome: novo.nome, cidade: novo.cidade, uf: novo.uf || "", user_id: novo.id, chave: chaveRecuperacao });
     }
-    return "ok";
+    return "ok::" + chaveRecuperacao;
   }
 
   function statusConta(id: string): "ok" | "ban7" | "excluido" {

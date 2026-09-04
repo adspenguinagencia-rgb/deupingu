@@ -17,7 +17,7 @@ const intencoes: Intencao[] = [
 ];
 
 export default function EntrarPage() {
-  const { entrar, login, sair, eu, estado, apagarConta, pedirReset } = usePingu();
+  const { entrar, login, sair, eu, estado, apagarConta, pedirReset, resetComToken, redefinirSenha } = usePingu();
   const [linkReset, setLinkReset] = useState("");
   const router = useRouter();
   const [modo, setModo] = useState<"cadastro" | "login" | "esqueci">("cadastro");
@@ -48,6 +48,13 @@ export default function EntrarPage() {
       ) : (
         <p className="mt-1 text-sm">Cria uma conta com WhatsApp e senha.</p>
       )}
+      {linkReset && modo === "cadastro" && ok.includes("ANOTA") && (
+        <div className="mt-4 space-y-3 rounded-2xl bg-[#fff0f5] p-4">
+          <p className="text-sm font-bold">Anota este código em um papel:</p>
+          <p className="text-center text-3xl font-extrabold tracking-widest text-[#ff4f8b]">{linkReset}</p>
+          <button type="button" className="btn-primario w-full" onClick={() => router.push("/")}>Anotei, entrar na rede</button>
+        </div>
+      )}
       <div className="mt-3 flex flex-wrap gap-2">
         <button type="button" className={modo === "cadastro" ? "btn-primario" : "btn-secundario"} onClick={() => setModo("cadastro")}>
           Cadastrar
@@ -67,33 +74,24 @@ export default function EntrarPage() {
             e.preventDefault();
             setErro("");
             setOk("");
-            if (!linkReset) {
-              const r = pedirReset(email);
-              if ("erro" in r) return setErro(r.erro);
-              setLinkReset(r.link || "");
-              setOk("Código pronto. Envio no WhatsApp em breve. Por agora o código aparece aqui.");
-              return;
-            }
-            if (senha2.replace(/\s/g, "") !== linkReset) return setErro("Código errado.");
-            const r = resetComToken(linkReset, senha);
+            const zap = email.includes("@") ? email.trim().toLowerCase() : email.replace(/\D/g, "");
+            const c = estado.contas.find((x) => x.email === zap);
+            if (!c) return setErro("WhatsApp não encontrado neste aparelho.");
+            if ((c.chave || "").toUpperCase() !== senha2.replace(/\s/g, "").toUpperCase()) return setErro("Código de recuperação errado.");
+            const r = redefinirSenha(zap, senha);
             if (r !== "ok") return setErro(r);
-            setOk("Senha nova salva.");
+            setOk("Senha nova salva. Entra em Já tenho conta.");
             setModo("login");
           }}
         >
-          <p className="text-sm">WhatsApp da conta. Depois o código e a senha nova.</p>
+          <p className="text-sm">WhatsApp + o código que você anotou no cadastro + senha nova.</p>
           <input required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="WhatsApp com DDD" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" inputMode="tel" />
-          {linkReset && (
-            <>
-              <p className="rounded-xl bg-[#fff0f5] p-3 text-center text-2xl font-extrabold tracking-widest">{linkReset}</p>
-              <input required value={senha2} onChange={(e) => setSenha2(e.target.value)} placeholder="Digite o código" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
-              <input required type="password" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="Senha nova" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
-            </>
-          )}
+          <input required value={senha2} onChange={(e) => setSenha2(e.target.value)} placeholder="Código anotado no cadastro" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
+          <input required type="password" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="Senha nova" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
           {erro && <p className="text-sm text-[var(--rosa-escuro)]">{erro}</p>}
           {ok && <p className="text-sm">{ok}</p>}
           <button className="btn-primario w-full" type="submit">
-            {linkReset ? "Trocar senha" : "Pedir código"}
+            Trocar senha
           </button>
         </form>
       ) : (
@@ -119,8 +117,13 @@ export default function EntrarPage() {
                     sexo,
                     idadePublica,
                   });
+            if (typeof r === "string" && r.startsWith("ok::")) {
+              setLinkReset(r.slice(4));
+              setOk("ANOTA ESTE CÓDIGO. Sem ele não dá para recuperar a senha.");
+              return;
+            }
             if (r !== "ok") setErro(r);
-            else router.push(email.trim().toLowerCase() === ADMIN_EMAIL || email.includes("@") && email.toLowerCase().includes("adspenguin") ? "/admin" : "/");
+            else router.push(email.trim().toLowerCase() === ADMIN_EMAIL ? "/admin" : "/");
           }}
         >
           {modo === "cadastro" && (

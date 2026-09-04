@@ -53,10 +53,10 @@ export function EditarPerfil() {
   return (
     <form
       className="mt-4 space-y-2 rounded-2xl bg-[#fff0f5] p-4"
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault();
         if (!cidade.trim() || !uf) return;
-        editarPerfil({
+        await editarPerfil({
           nome: nome.trim() || eu.nome,
           cidade: cidade.trim(),
           uf,
@@ -65,7 +65,9 @@ export function EditarPerfil() {
           intencao,
           quemSouEu: frase.trim(),
           idadePublica,
+          apelido: eu.apelido,
         });
+        alert("Perfil salvo para todo mundo.");
         setAberto(false);
       }}
     >

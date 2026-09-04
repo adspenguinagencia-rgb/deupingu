@@ -57,7 +57,7 @@ export function checarPublicacao(texto: string, nomeArquivo?: string): string | 
   return checarTexto(texto) || checarArquivo(nomeArquivo);
 }
 
-export const TEXTO_REGRAS = `Regras da comunidade PinguOrk
+export const TEXTO_REGRAS = `Regras da comunidade Deupingu
 1. Sem nudes ou conteúdo sexual explícito em foto, vídeo, recado, perfil ou comentário.
 2. Foto proibida é bloqueada na hora.
 3. Sem racismo, preconceito ou discurso de ódio.

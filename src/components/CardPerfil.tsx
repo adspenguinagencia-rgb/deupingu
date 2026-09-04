@@ -61,9 +61,9 @@ export function CardPerfil({
             <button type="button" className="btn-secundario">
               Depoimento
             </button>
-            <button type="button" className="btn-secundario" title="Em breve">
-              Crush secreto
-            </button>
+            <Link href={`/perfil/${usuario.id}`} className="btn-crush">
+              ♥ Crush secreto
+            </Link>
           </div>
         )}
       </div>

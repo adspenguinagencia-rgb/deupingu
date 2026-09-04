@@ -25,8 +25,8 @@ export function BarraPost({
         💬 Comentar
       </button>
       {!proprio && (
-        <button type="button" onClick={() => crush(autorId)} disabled={enviado && !match}>
-          {match ? "♥ Deu Pingu" : enviado ? "Crush secreto enviado" : "Crush secreto"}
+        <button type="button" className="btn-crush" onClick={() => crush(autorId)} disabled={enviado && !match}>
+          {match ? "♥ Deu Pingu" : enviado ? "♥ Enviado" : "♥ Crush secreto"}
         </button>
       )}
     </div>

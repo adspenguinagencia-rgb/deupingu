@@ -70,19 +70,28 @@ export default function EntrarPage() {
             setLinkReset("");
             const r = pedirReset(email);
             if ("erro" in r) return setErro(r.erro);
-            setOk(r.ok);
+            setOk("Link criado. O site ainda não tem servidor de e-mail, então o link aparece aqui. Abre ele para mudar a senha.");
             setLinkReset(r.link || "");
-            window.location.href = `mailto:${email}?subject=PinguOrk redefinir senha&body=${encodeURIComponent("Abra este link para mudar a senha: " + (r.link || ""))}`;
           }}
         >
-          <p className="text-sm">Digite o e-mail da conta. Abre o app de e-mail com o link para mudar a senha.</p>
+          <p className="text-sm">Digite o e-mail da conta. O link para mudar a senha aparece embaixo.</p>
           <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="E-mail cadastrado" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
           {erro && <p className="text-sm text-[var(--rosa-escuro)]">{erro}</p>}
           {ok && <p className="text-sm">{ok}</p>}
           {linkReset && (
-            <p className="break-all text-xs">
-              Link: <a className="text-[#ff4f8b] underline" href={linkReset}>{linkReset}</a>
-            </p>
+            <div className="space-y-2 rounded-xl bg-[#fff0f5] p-3">
+              <p className="break-all text-xs">{linkReset}</p>
+              <a className="btn-primario inline-block" href={linkReset}>
+                Abrir link e mudar senha
+              </a>
+              <button
+                type="button"
+                className="btn-secundario"
+                onClick={() => navigator.clipboard.writeText(linkReset)}
+              >
+                Copiar link
+              </button>
+            </div>
           )}
           <button className="btn-primario w-full" type="submit">
             Enviar link

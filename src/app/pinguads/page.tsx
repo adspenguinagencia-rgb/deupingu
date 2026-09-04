@@ -46,7 +46,7 @@ export default function PinguadsPage() {
       </p>
 
       <div className="card p-4 text-sm">
-        <p className="font-bold">Formatos aceitos na PinguOrk e no Pinguads</p>
+        <p className="font-bold">Formatos aceitos na Deupingu e no Pinguads</p>
         <ul className="mt-2 space-y-1 text-[var(--texto-2)]">
           <li>Feed vertical: 1080 × 1350 (4:5)</li>
           <li>Feed quadrado: 1080 × 1080 (1:1)</li>

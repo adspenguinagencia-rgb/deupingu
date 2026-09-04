@@ -24,6 +24,7 @@ export type Usuario = {
   sexo?: "homem" | "mulher" | "outro";
   idadePublica?: boolean;
   seguindo?: string[];
+  apelido?: string;
 };
 
 export type Comunidade = {

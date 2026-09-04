@@ -377,6 +377,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     idade?: number;
     sexo?: Usuario["sexo"];
     idadePublica?: boolean;
+    apelido?: string;
   }) {
     const id = slugify(dados.nome);
     const bruto = (dados.email || "").trim().toLowerCase();
@@ -384,6 +385,10 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     const email = bruto.includes("@") ? bruto : cpf;
     if (email && !email.includes("@") && (cpf.length < 10 || cpf.length > 13)) return "WhatsApp com DDD. Ex: 11999999999";
     if (email && estado.contas.some((c) => c.email === email)) return "Esse WhatsApp já tem conta. Usa Entrar.";
+    const apelido = (dados.apelido || "").trim().toLowerCase().replace(/^@/, "").replace(/[^a-z0-9._]/g, "");
+    if (!apelido || apelido.length < 3) return "Apelido no estilo @seu_nome (mínimo 3 caracteres).";
+    const ocupado = usuarios.some((u) => (u.apelido || "").toLowerCase() === apelido) || estado.usuariosExtra.some((u) => (u.apelido || "").toLowerCase() === apelido);
+    if (ocupado) return "Nome de usuário em uso.";
     const novo: Usuario = {
       id,
       nome: dados.nome.trim() || "Pinguim sem nome",
@@ -400,6 +405,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
       acento: "#EC407A",
       sexo: dados.sexo,
       idadePublica: dados.idadePublica !== false,
+      apelido,
     };
     const chaveRecuperacao = Array.from({ length: 8 }, () => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
     const sb = getSupabase();
@@ -433,7 +439,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
         await sb.from("contas_cpf").upsert({ cpf: email, senha: dados.senha, nome: novo.nome, cidade: novo.cidade, uf: novo.uf || "", user_id: novo.id, chave: chaveRecuperacao });
       } catch {}
     }
-    if (typeof window !== "undefined") window.alert("ANOTA ESTE CÓDIGO: " + chaveRecuperacao);
+    if (typeof window !== "undefined") window.alert("ANOTA ESTE CÓDIGO\n\n" + chaveRecuperacao + "\n\nEste é o ÚNICO jeito de recuperar a senha se você esquecer. Sem esse código não tem como.");
     return "ok::" + chaveRecuperacao;
   }
 

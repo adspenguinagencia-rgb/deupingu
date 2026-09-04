@@ -34,6 +34,7 @@ export default function EntrarPage() {
   const [erro, setErro] = useState("");
   const [ok, setOk] = useState("");
   const [aceitou, setAceitou] = useState(false);
+  const [apelido, setApelido] = useState("");
 
   return (
     <div className="mx-auto max-w-md card p-6">
@@ -50,7 +51,7 @@ export default function EntrarPage() {
       )}
       {linkReset && modo === "cadastro" && ok.includes("ANOTA") && (
         <div className="mt-4 space-y-3 rounded-2xl bg-[#fff0f5] p-4">
-          <p className="text-sm font-bold">Anota este código em um papel:</p>
+          <p className="text-sm font-bold">Anota este código. É o ÚNICO jeito de recuperar a senha se esquecer.</p>
           <p className="text-center text-3xl font-extrabold tracking-widest text-[#ff4f8b]">{linkReset}</p>
           <button type="button" className="btn-primario w-full" onClick={() => router.push("/")}>Anotei, entrar na rede</button>
         </div>
@@ -116,12 +117,13 @@ export default function EntrarPage() {
                     idade: Number(idade) || 25,
                     sexo,
                     idadePublica,
+                    apelido,
                   });
             if (typeof r === "string" && r.startsWith("ok::")) {
               const chave = r.slice(4);
               setLinkReset(chave);
-              setOk("ANOTA ESTE CÓDIGO. Sem ele não dá para recuperar a senha.");
-              window.alert("ANOTA ESTE CÓDIGO:\n\n" + chave);
+              setOk("ANOTA ESTE CÓDIGO. Este é o ÚNICO jeito de recuperar a senha. Sem ele não tem como.");
+              window.alert("ANOTA ESTE CÓDIGO\n\n" + chave + "\n\nEste é o ÚNICO jeito de recuperar a senha se você esquecer.");
               return;
             }
             if (r !== "ok") setErro(r);
@@ -131,6 +133,7 @@ export default function EntrarPage() {
           {modo === "cadastro" && (
             <>
               <input required value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Seu nome" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
+              <input required value={apelido} onChange={(e) => setApelido(e.target.value)} placeholder="@seu_usuario" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
               <input required value={cidade} onChange={(e) => setCidade(e.target.value)} placeholder="Cidade" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
               <select required value={uf} onChange={(e) => setUf(e.target.value)} className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm">
                 <option value="">Estado</option>

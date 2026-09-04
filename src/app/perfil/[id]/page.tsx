@@ -15,9 +15,10 @@ import { usePingu } from "@/lib/store";
 
 export default function PerfilPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const { eu, getUsuario, estado, aceitarDepoimento, ehMatch } = usePingu();
+  const { eu, getUsuario, estado, aceitarDepoimento, ehMatch, setFoto } = usePingu();
   const usuario = getUsuario(id);
   const [aba, setAba] = useState<"recados" | "depoimentos" | "comunidades" | "fotos">("fotos");
+  const [preview, setPreview] = useState("");
 
   if (!usuario) return <p>Perfil não encontrado.</p>;
 
@@ -32,17 +33,44 @@ export default function PerfilPage({ params }: { params: Promise<{ id: string }>
       <div className="card overflow-hidden">
         <div className="h-28" style={{ background: usuario.acento }} />
         <div className="-mt-10 px-5 pb-5">
-          {(usuario.id === eu.id ? eu.avatar : usuario.avatar) ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={(usuario.id === eu.id ? eu.avatar : usuario.avatar) || ""} alt="" className="h-32 w-32 rounded-full object-cover ring-4 ring-white" />
-          ) : (
-            <div
-              className="flex h-32 w-32 items-center justify-center rounded-full text-3xl font-bold text-white ring-4 ring-white"
-              style={{ background: usuario.avatarCor }}
-            >
-              {usuario.nome.split(" ").map((n) => n[0]).slice(0, 2).join("")}
-            </div>
-          )}
+          {(() => {
+            const src = preview || (usuario.id === eu.id ? eu.avatar : usuario.avatar);
+            const bola = src ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={src} alt="" className="h-32 w-32 rounded-full object-cover ring-4 ring-white" />
+            ) : (
+              <div
+                className="flex h-32 w-32 items-center justify-center rounded-full text-3xl font-bold text-white ring-4 ring-white"
+                style={{ background: usuario.avatarCor }}
+              >
+                {usuario.nome.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+              </div>
+            );
+            if (usuario.id !== eu.id) return bola;
+            return (
+              <label className="block w-32 cursor-pointer">
+                {bola}
+                <span className="mt-1 block text-center text-xs font-bold text-[#ff4f8b]">Trocar foto</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const local = URL.createObjectURL(file);
+                    setPreview(local);
+                    const reader = new FileReader();
+                    reader.onload = async () => {
+                      const r = await setFoto(String(reader.result), file.name);
+                      if (r !== "ok") alert(r);
+                    };
+                    reader.readAsDataURL(file);
+                  }}
+                />
+              </label>
+            );
+          })()}
           <h1 className="mt-3 text-2xl font-extrabold">{usuario.nome}</h1>
           {usuario.apelido && <p className="text-sm font-semibold text-[#ff4f8b]">@{usuario.apelido}</p>}
           <p className="text-sm text-[var(--texto-2)]">

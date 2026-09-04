@@ -16,9 +16,9 @@ export function HeaderPingu() {
 
   const nav = [
     { href: "/", label: "Feed" },
-    { href: "/comunidades", label: "Comunidades" },
+    { href: "/comunidades", label: "Comunidade" },
     { href: `/perfil/${eu.id}`, label: "Perfil" },
-    { href: "/pinguads", label: "Pinguads" },
+    { href: "/pinguads", label: "Ads" },
     ...(ehAdmin ? [{ href: "/admin", label: "Painel" }] : []),
   ];
 
@@ -34,7 +34,6 @@ export function HeaderPingu() {
           </Link>
           <nav className="mx-auto hidden items-center gap-1 md:flex">
             {nav.map((l) => {
-              const ativo = l.href === "/" ? path === "/" : path.startsWith(l.href.split("/").slice(0, 2).join("/") || l.href);
               const feedAtivo = l.href === "/" && path === "/";
               const outro = l.href !== "/" && path.startsWith(l.href);
               const on = feedAtivo || outro;
@@ -51,44 +50,17 @@ export function HeaderPingu() {
               );
             })}
           </nav>
-          <div className="ml-auto flex items-center gap-2 sm:hidden">
-            <Link href={`/perfil/${eu.id}`}>
-              <Avatar usuario={eu} size={32} />
-            </Link>
-            <button type="button" onClick={() => { sair(); router.push("/entrar"); }} className="text-[#7a5a66]">
-              ↪
-            </button>
-          </div>
-          <div className="ml-auto hidden items-center gap-2 sm:flex">
-            <Link href="/conversas" className="relative grid h-9 w-9 place-items-center text-lg" title="Corações">
-              ♥
-              {coracoesNovos > 0 && (
-                <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#ff5a9a] px-1 text-[10px] font-bold text-white">
-                  {coracoesNovos}
-                </span>
-              )}
-            </Link>
+          <div className="ml-auto flex items-center gap-2">
             <Link href="/conversas" className="relative grid h-9 w-9 place-items-center text-lg" title="Mensagens">
               💬
-              {msgsNovas + recadosNovos > 0 && (
+              {msgsNovas + recadosNovos + coracoesNovos > 0 && (
                 <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#ff5a9a] px-1 text-[10px] font-bold text-white">
-                  {msgsNovas + recadosNovos}
-                </span>
-              )}
-            </Link>
-            <Link href="/gente" className="grid h-9 w-9 place-items-center text-lg" title="Gente">
-              👁
-            </Link>
-            <Link href="/conversas" className="relative grid h-9 w-9 place-items-center text-lg" title="Avisos">
-              🔔
-              {coracoesNovos + recadosNovos > 0 && (
-                <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#3b82f6] px-1 text-[10px] font-bold text-white">
-                  {coracoesNovos + recadosNovos}
+                  {msgsNovas + recadosNovos + coracoesNovos}
                 </span>
               )}
             </Link>
             <Link href={`/perfil/${eu.id}`}>
-              <Avatar usuario={eu} size={48} />
+              <Avatar usuario={eu} size={36} />
             </Link>
             <button
               type="button"
@@ -97,67 +69,7 @@ export function HeaderPingu() {
                 router.push("/entrar");
               }}
               className="text-[#7a5a66]"
-              title="Sair da conta"
-            >
-              ↪
-            </button>
-          </div>
-        </div>
-      </header>
-      <nav className="fixed bottom-0 left-0 right-0 z-40 grid grid-cols-5 items-end border-t border-[#f3d4e0] bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
-        <Link href="/" className="py-2 text-center text-[11px] font-extrabold text-[#ff5a9a]">Feed</Link>
-        <Link href="/comunidades" className="py-2 pr-2 text-center text-[11px] font-extrabold text-[#ff5a9a]">Comunidade</Link>
-        <Link href="/conversas" className="border-l border-[#ffd0e0] py-2 pl-2 text-center text-[11px] font-extrabold text-[#ff5a9a]">Msg</Link>
-        <Link href="/pinguads" className="py-2 text-center text-[11px] font-extrabold text-[#ff5a9a]">Ads</Link>
-        <Link href={`/perfil/${eu.id}`} className="py-2 text-center text-[11px] font-extrabold text-[#ff5a9a]">Perfil</Link>
-      </nav>
-          <div className="ml-auto flex items-center gap-2 sm:hidden">
-            <Link href={`/perfil/${eu.id}`}>
-              <Avatar usuario={eu} size={32} />
-            </Link>
-            <button type="button" onClick={() => { sair(); router.push("/entrar"); }} className="text-[#7a5a66]">
-              ↪
-            </button>
-          </div>
-          <div className="ml-auto hidden items-center gap-2 sm:flex">
-            <Link href="/conversas" className="relative grid h-9 w-9 place-items-center text-lg" title="Corações">
-              ♥
-              {coracoesNovos > 0 && (
-                <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#ff5a9a] px-1 text-[10px] font-bold text-white">
-                  {coracoesNovos}
-                </span>
-              )}
-            </Link>
-            <Link href="/conversas" className="relative grid h-9 w-9 place-items-center text-lg" title="Mensagens">
-              💬
-              {msgsNovas + recadosNovos > 0 && (
-                <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#ff5a9a] px-1 text-[10px] font-bold text-white">
-                  {msgsNovas + recadosNovos}
-                </span>
-              )}
-            </Link>
-            <Link href="/gente" className="grid h-9 w-9 place-items-center text-lg" title="Gente">
-              👁
-            </Link>
-            <Link href="/conversas" className="relative grid h-9 w-9 place-items-center text-lg" title="Avisos">
-              🔔
-              {coracoesNovos + recadosNovos > 0 && (
-                <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#3b82f6] px-1 text-[10px] font-bold text-white">
-                  {coracoesNovos + recadosNovos}
-                </span>
-              )}
-            </Link>
-            <Link href={`/perfil/${eu.id}`}>
-              <Avatar usuario={eu} size={48} />
-            </Link>
-            <button
-              type="button"
-              onClick={() => {
-                sair();
-                router.push("/entrar");
-              }}
-              className="text-[#7a5a66]"
-              title="Sair da conta"
+              title="Sair"
             >
               ↪
             </button>
@@ -165,84 +77,21 @@ export function HeaderPingu() {
         </div>
       </header>
       <nav className="fixed bottom-0 left-0 right-0 z-40 grid grid-cols-5 border-t border-[#f3d4e0] bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
-        {[
-          { href: "/", label: "Feed", icon: "⌂" },
-          { href: "/comunidades", label: "Comunidade", icon: "👥" },
-          { href: "/conversas", label: "Msg", icon: "💬" },
-          { href: "/pinguads", label: "Ads", icon: "📣" },
-          { href: `/perfil/${eu.id}`, label: "Perfil", icon: "☺" },
-        ].map((l, i) => (
-          <Link key={l.href} href={l.href} className={`flex flex-col items-center gap-0.5 px-1 py-2 text-[#ff5a9a] ${i === 1 ? "pr-3" : ""} ${i === 2 ? "ml-2 border-l-2 border-[#ffb7d0] pl-3" : ""}`}>
-            <span className="text-lg leading-none">{l.icon}</span>
-            <span className="text-[10px] font-bold leading-tight">{l.label}</span>
-          </Link>
-        ))}
-      </nav>
-          <div className="ml-auto flex items-center gap-2 sm:hidden">
-            <Link href={`/perfil/${eu.id}`}>
-              <Avatar usuario={eu} size={32} />
-            </Link>
-            <button type="button" onClick={() => { sair(); router.push("/entrar"); }} className="text-[#7a5a66]">
-              ↪
-            </button>
-          </div>
-          <div className="ml-auto hidden items-center gap-2 sm:flex">
-            <Link href="/conversas" className="relative grid h-9 w-9 place-items-center text-lg" title="Corações">
-              ♥
-              {coracoesNovos > 0 && (
-                <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#ff5a9a] px-1 text-[10px] font-bold text-white">
-                  {coracoesNovos}
-                </span>
-              )}
-            </Link>
-            <Link href="/conversas" className="relative grid h-9 w-9 place-items-center text-lg" title="Mensagens">
-              💬
-              {msgsNovas + recadosNovos > 0 && (
-                <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#ff5a9a] px-1 text-[10px] font-bold text-white">
-                  {msgsNovas + recadosNovos}
-                </span>
-              )}
-            </Link>
-            <Link href="/gente" className="grid h-9 w-9 place-items-center text-lg" title="Gente">
-              👁
-            </Link>
-            <Link href="/conversas" className="relative grid h-9 w-9 place-items-center text-lg" title="Avisos">
-              🔔
-              {coracoesNovos + recadosNovos > 0 && (
-                <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#3b82f6] px-1 text-[10px] font-bold text-white">
-                  {coracoesNovos + recadosNovos}
-                </span>
-              )}
-            </Link>
-            <Link href={`/perfil/${eu.id}`}>
-              <Avatar usuario={eu} size={48} />
-            </Link>
-            <button
-              type="button"
-              onClick={() => {
-                sair();
-                router.push("/entrar");
-              }}
-              className="text-[#7a5a66]"
-              title="Sair da conta"
-            >
-              ↪
-            </button>
-          </div>
-        </div>
-      </header>
-      <nav className="fixed bottom-0 left-0 right-0 z-40 grid grid-cols-5 border-t border-[#f3d4e0] bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
-        {[
-          { href: "/", label: "Feed" },
-          { href: "/comunidades", label: "Comunidade" },
-          { href: "/conversas", label: "Msg" },
-          { href: "/pinguads", label: "Ads" },
-          { href: `/perfil/${eu.id}`, label: "Perfil" },
-        ].map((l) => (
-          <Link key={l.href} href={l.href} className="px-0.5 py-3 text-center text-sm font-bold leading-tight text-[#ff5a9a]">
-            {l.label}
-          </Link>
-        ))}
+        <Link href="/" className="py-3 text-center text-xs font-extrabold text-[#ff5a9a]">
+          Feed
+        </Link>
+        <Link href="/comunidades" className="py-3 pr-3 text-center text-xs font-extrabold text-[#ff5a9a]">
+          Comunidade
+        </Link>
+        <Link href="/conversas" className="border-l-2 border-[#ffd0e0] py-3 pl-3 text-center text-xs font-extrabold text-[#ff5a9a]">
+          Msg
+        </Link>
+        <Link href="/pinguads" className="py-3 text-center text-xs font-extrabold text-[#ff5a9a]">
+          Ads
+        </Link>
+        <Link href={`/perfil/${eu.id}`} className="py-3 text-center text-xs font-extrabold text-[#ff5a9a]">
+          Perfil
+        </Link>
       </nav>
     </>
   );

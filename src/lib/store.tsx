@@ -783,28 +783,33 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
   }
 
   function pedirReset(email: string) {
-    const e = email.trim().toLowerCase();
+    const e = email.includes("@") ? email.trim().toLowerCase() : email.replace(/\D/g, "");
     const c = estado.contas.find((x) => x.email === e);
-    if (!c) return { erro: "Esse e-mail não tem conta." };
-    const token = Math.random().toString(36).slice(2) + Date.now().toString(36);
-    const payload = { email: e, token, exp: Date.now() + 60 * 60 * 1000 };
+    if (!c && !e) return { erro: "Coloca o WhatsApp da conta." };
+    const codigo = String(Math.floor(100000 + Math.random() * 900000));
+    const payload = { email: e || c?.email, token: codigo, exp: Date.now() + 20 * 60 * 1000 };
     localStorage.setItem("pinguork-reset", JSON.stringify(payload));
-    const link = `${typeof window !== "undefined" ? window.location.origin : ""}/entrar/nova-senha?token=${token}`;
-    return { ok: "Enviamos um link para o seu e-mail.", link };
+    const sb = getSupabase();
+    if (sb && e && !e.includes("@")) void sb.from("contas_cpf").update({ senha: c?.senha }).eq("cpf", e);
+    return { ok: "Código gerado. Em breve ele chega no WhatsApp.", link: codigo };
   }
 
   function resetComToken(token: string, nova: string) {
     try {
       const raw = localStorage.getItem("pinguork-reset");
-      if (!raw) return "Link inválido ou já usado.";
+      if (!raw) return "Código inválido ou já usado.";
       const p = JSON.parse(raw) as { email: string; token: string; exp: number };
-      if (p.token !== token) return "Link inválido.";
-      if (Date.now() > p.exp) return "Link expirado. Peça outro.";
+      if (p.token !== token) return "Código inválido.";
+      if (Date.now() > p.exp) return "Código expirado. Peça outro.";
       const r = redefinirSenha(p.email, nova);
-      if (r === "ok") localStorage.removeItem("pinguork-reset");
+      if (r === "ok") {
+        localStorage.removeItem("pinguork-reset");
+        const sb = getSupabase();
+        if (sb && p.email && !String(p.email).includes("@")) void sb.from("contas_cpf").update({ senha: nova }).eq("cpf", p.email);
+      }
       return r;
     } catch {
-      return "Link inválido.";
+      return "Código inválido.";
     }
   }
 

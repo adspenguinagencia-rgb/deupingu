@@ -67,34 +67,33 @@ export default function EntrarPage() {
             e.preventDefault();
             setErro("");
             setOk("");
-            setLinkReset("");
-            const r = pedirReset(email);
-            if ("erro" in r) return setErro(r.erro);
-            setOk("Link criado. O site ainda não tem servidor de e-mail, então o link aparece aqui. Abre ele para mudar a senha.");
-            setLinkReset(r.link || "");
+            if (!linkReset) {
+              const r = pedirReset(email);
+              if ("erro" in r) return setErro(r.erro);
+              setLinkReset(r.link || "");
+              setOk("Código pronto. Envio no WhatsApp em breve. Por agora o código aparece aqui.");
+              return;
+            }
+            if (senha2.replace(/\s/g, "") !== linkReset) return setErro("Código errado.");
+            const r = resetComToken(linkReset, senha);
+            if (r !== "ok") return setErro(r);
+            setOk("Senha nova salva.");
+            setModo("login");
           }}
         >
-          <p className="text-sm">Digite o e-mail da conta. O link para mudar a senha aparece embaixo.</p>
-          <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="E-mail cadastrado" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
+          <p className="text-sm">WhatsApp da conta. Depois o código e a senha nova.</p>
+          <input required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="WhatsApp com DDD" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" inputMode="tel" />
+          {linkReset && (
+            <>
+              <p className="rounded-xl bg-[#fff0f5] p-3 text-center text-2xl font-extrabold tracking-widest">{linkReset}</p>
+              <input required value={senha2} onChange={(e) => setSenha2(e.target.value)} placeholder="Digite o código" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
+              <input required type="password" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="Senha nova" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
+            </>
+          )}
           {erro && <p className="text-sm text-[var(--rosa-escuro)]">{erro}</p>}
           {ok && <p className="text-sm">{ok}</p>}
-          {linkReset && (
-            <div className="space-y-2 rounded-xl bg-[#fff0f5] p-3">
-              <p className="break-all text-xs">{linkReset}</p>
-              <a className="btn-primario inline-block" href={linkReset}>
-                Abrir link e mudar senha
-              </a>
-              <button
-                type="button"
-                className="btn-secundario"
-                onClick={() => navigator.clipboard.writeText(linkReset)}
-              >
-                Copiar link
-              </button>
-            </div>
-          )}
           <button className="btn-primario w-full" type="submit">
-            Enviar link
+            {linkReset ? "Trocar senha" : "Pedir código"}
           </button>
         </form>
       ) : (

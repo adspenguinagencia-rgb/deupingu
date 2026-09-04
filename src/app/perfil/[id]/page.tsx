@@ -34,10 +34,10 @@ export default function PerfilPage({ params }: { params: Promise<{ id: string }>
         <div className="-mt-10 px-5 pb-5">
           {usuario.avatar ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={usuario.avatar} alt="" className="h-20 w-20 rounded-full object-cover ring-4 ring-white" />
+            <img src={usuario.avatar} alt="" className="h-32 w-32 rounded-full object-cover ring-4 ring-white" />
           ) : (
             <div
-              className="flex h-20 w-20 items-center justify-center rounded-full text-xl font-bold text-white ring-4 ring-white"
+              className="flex h-32 w-32 items-center justify-center rounded-full text-3xl font-bold text-white ring-4 ring-white"
               style={{ background: usuario.avatarCor }}
             >
               {usuario.nome.split(" ").map((n) => n[0]).slice(0, 2).join("")}

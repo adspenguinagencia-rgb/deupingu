@@ -61,10 +61,10 @@ export function StoriesBar() {
 
   return (
     <div>
-      <div className="flex gap-4 overflow-x-auto pb-2">
-        <label className="flex w-[76px] shrink-0 cursor-pointer flex-col items-center gap-1">
-          <Avatar usuario={eu} size={72} anel />
-          <span className="w-[76px] truncate text-center text-sm font-semibold">+ Story</span>
+      <div className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory">
+        <label className="flex w-[23%] min-w-[23%] shrink-0 snap-start cursor-pointer flex-col items-center gap-1">
+          <Avatar usuario={eu} size={88} anel />
+          <span className="w-full truncate text-center text-sm font-semibold">+ Story</span>
           <input
             type="file"
             accept="image/*,video/*"
@@ -99,9 +99,9 @@ export function StoriesBar() {
         </label>
         {autores.map((u) =>
           u ? (
-            <button key={u.id} type="button" onClick={() => abrirAutor(u.id)} className="flex w-[76px] shrink-0 flex-col items-center gap-1">
-              <Avatar usuario={u} size={72} anel />
-              <span className="w-[76px] truncate text-center text-sm font-semibold">{u.nome.split(" ")[0]}</span>
+            <button key={u.id} type="button" onClick={() => abrirAutor(u.id)} className="flex w-[23%] min-w-[23%] shrink-0 snap-start flex-col items-center gap-1">
+              <Avatar usuario={u} size={88} anel />
+              <span className="w-full truncate text-center text-sm font-semibold">{u.nome.split(" ")[0]}</span>
             </button>
           ) : null
         )}

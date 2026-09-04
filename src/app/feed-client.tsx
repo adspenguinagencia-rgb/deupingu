@@ -27,7 +27,7 @@ export function FeedClient() {
   }).slice(0, 4);
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[240px_minmax(0,1fr)_280px]">
+    <div className="grid min-w-0 gap-5 grid-cols-1 lg:grid-cols-[240px_minmax(0,1fr)_280px]">
       <aside className="hidden lg:block">
         <PainelEu />
       </aside>
@@ -147,7 +147,7 @@ export function FeedClient() {
             return (
               <article key={post.id} className="card overflow-hidden">
                 <div className="flex items-center gap-3 p-4 pb-2">
-                  <Avatar usuario={autor} size={52} />
+                  <Avatar usuario={autor} size={64} />
                   <div>
                     <Link href={`/perfil/${autor.id}`} className="text-sm font-bold hover:underline">
                       {autor.nome}
@@ -215,7 +215,7 @@ export function FeedClient() {
             {gente.map((u) => (
               <li key={u.id} className="flex items-center gap-3">
                 <Link href={`/perfil/${u.id}`}>
-                  <Avatar usuario={u} size={52} />
+                  <Avatar usuario={u} size={64} />
                 </Link>
                 <div>
                   <Link href={`/perfil/${u.id}`} className="text-sm font-bold hover:underline">
@@ -237,7 +237,7 @@ export function FeedClient() {
           <ul className="mt-3 space-y-3">
             {minhas.map((c) => (
               <li key={c.slug} className="flex items-center gap-3">
-                <FotoComunidade comunidade={c} size={52} />
+                <FotoComunidade comunidade={c} size={64} />
                 <Link href={`/comunidades/${c.slug}`} className="text-sm hover:underline">
                   {c.nome}
                 </Link>

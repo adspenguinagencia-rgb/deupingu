@@ -16,6 +16,8 @@
 
 html,
 body {
+  overflow-x: hidden;
+  max-width: 100%;
   background:
     radial-gradient(900px 400px at 10% -10%, #ffd6e8 0%, transparent 50%),
     radial-gradient(700px 360px at 100% 0%, #ffe9f2 0%, transparent 45%),
@@ -43,7 +45,7 @@ body {
 @media (max-width: 768px) {
   html,
   body {
-    font-size: 17px;
+    font-size: 19px;
   }
   .card {
     border-radius: 18px;

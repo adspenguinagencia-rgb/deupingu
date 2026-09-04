@@ -20,7 +20,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
   if (!logado && path !== "/entrar") return <p className="p-8 text-center text-sm">Vai para o cadastro…</p>;
 
   return (
-    <div className="min-h-screen pb-24 md:pb-8">
+    <div className="min-h-screen overflow-x-hidden pb-24 md:pb-8">
       {logado && <HeaderPingu />}
       <main className="mx-auto max-w-6xl px-3 py-4 md:px-4 md:py-6">{children}</main>
     </div>

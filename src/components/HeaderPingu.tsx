@@ -88,7 +88,7 @@ export function HeaderPingu() {
               )}
             </Link>
             <Link href={`/perfil/${eu.id}`}>
-              <Avatar usuario={eu} size={36} />
+              <Avatar usuario={eu} size={48} />
             </Link>
             <button
               type="button"

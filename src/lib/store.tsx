@@ -210,6 +210,7 @@ const Ctx = createContext<{
   pedidoPendente: (slug: string) => boolean;
   apagarConta: () => void;
   redefinirSenha: (email: string, nova: string) => string;
+  garantirChave: () => string;
   pedirReset: (email: string) => { ok: string; link?: string } | { erro: string };
   resetComToken: (token: string, nova: string) => string;
   ehAdmin: boolean;
@@ -310,6 +311,99 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     if (!pronto) return;
     const sb = getSupabase();
     if (!sb) return;
+    void sb.from("contas_cpf").select("*").then(({ data: rows }) => {
+      if (!rows) return;
+      setEstado((s) => {
+        let extra = s.usuariosExtra;
+        const contas = [...s.contas];
+        for (const row of rows) {
+          if (!row.user_id) continue;
+          extra = upsertUser(extra, {
+            id: row.user_id,
+            nome: row.nome || "Pinguim",
+            idade: 25,
+            cidade: row.cidade || "",
+            uf: row.uf || "",
+            intencao: "Aberto a conhecer",
+            quemSouEu: "Conta Deu Pingu.",
+            comunidades: [],
+            avaliacoes: { legal: 50, confiavel: 50, sexy: 50 },
+            fotos: [],
+            avatarCor: "#EC407A",
+            acento: "#EC407A",
+          });
+          if (row.cpf && !contas.some((c) => c.email === row.cpf)) {
+            contas.push({ email: row.cpf, senha: row.senha || "", userId: row.user_id, chave: row.chave });
+          } else {
+            contas.forEach((c, i) => {
+              if (c.email === row.cpf && row.chave) contas[i] = { ...c, chave: row.chave };
+            });
+          }
+        }
+        return { ...s, usuariosExtra: extra, contas };
+      });
+    });
+    void sb.from("profiles").select("*").then(({ data: perfis }) => {
+      if (!perfis) return;
+      setEstado((s) => {
+        let extra = s.usuariosExtra;
+        for (const perfil of perfis) {
+          extra = upsertUser(extra, {
+            id: perfil.id,
+            nome: perfil.nome || "Pinguim",
+            idade: perfil.idade || 25,
+            cidade: perfil.cidade || "",
+            uf: perfil.uf || "",
+            intencao: perfil.intencao || "Aberto a conhecer",
+            quemSouEu: "Conta Deu Pingu.",
+            comunidades: [],
+            avaliacoes: { legal: 50, confiavel: 50, sexy: 50 },
+            fotos: perfil.foto ? [perfil.foto] : [],
+            avatar: perfil.foto || undefined,
+            avatarCor: "#EC407A",
+            acento: "#EC407A",
+          });
+        }
+        return { ...s, usuariosExtra: extra };
+      });
+    });
+    void sb.from("stories").select("*").then(({ data }) => {
+      if (!data) return;
+      setEstado((s) => {
+        const ids = new Set(s.stories.map((x) => x.id));
+        const novos = data.filter((r) => !ids.has(r.id)).map((r) => ({
+          id: r.id, autorId: r.autor_id, midia: r.midia || "", video: !!r.video, criadoEm: Number(r.criado_em) || Date.now(),
+        }));
+        return novos.length ? { ...s, stories: [...novos, ...s.stories] } : s;
+      });
+    });
+    void sb.from("comunidades_app").select("*").then(({ data }) => {
+      if (!data) return;
+      setEstado((s) => {
+        const slugs = new Set(s.comunidadesExtra.map((c) => c.slug));
+        const extra = data.filter((r) => !slugs.has(r.slug)).map((r) => ({
+          slug: r.slug, nome: r.nome || r.slug, membros: "1", descricao: r.descricao || "", cor: "#EC407A",
+          donoId: r.dono_id, capa: r.capa || undefined, tipo: r.tipo || "aberta", restrita: r.tipo === "fechada",
+        }));
+        return extra.length ? { ...s, comunidadesExtra: [...s.comunidadesExtra, ...extra] } : s;
+      });
+    });
+    void sb.from("recados").select("*").then(({ data }) => {
+      if (!data) return;
+      setEstado((s) => {
+        const ids = new Set(s.mensagens.map((m) => m.id));
+        const extra = data.filter((r) => !ids.has(r.id)).map((r) => ({ id: r.id, de: r.de, para: r.para, texto: r.texto }));
+        return extra.length ? { ...s, mensagens: [...s.mensagens, ...extra] } : s;
+      });
+    });
+    void sb.from("crushes").select("*").then(({ data }) => {
+      if (!data) return;
+      setEstado((s) => {
+        const tem = (de: string, para: string) => s.crushes.some((c) => c.de === de && c.para === para);
+        const extra = data.filter((r) => !tem(r.de, r.para)).map((r) => ({ de: r.de, para: r.para }));
+        return extra.length ? { ...s, crushes: [...s.crushes, ...extra] } : s;
+      });
+    });
     void sb.from("posts").select("*").order("created_at", { ascending: false }).then(({ data }) => {
       if (!data) return;
       setEstado((s) => {
@@ -605,6 +699,8 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     if (temCrush(estado.euId, para)) return "enviado";
     const jaRecebeu = temCrush(para, estado.euId);
     setEstado((s) => ({ ...s, crushes: [...s.crushes, { de: s.euId, para }] }));
+    const sb = getSupabase();
+    if (sb) void sb.from("crushes").upsert({ de: estado.euId, para });
     return jaRecebeu ? "match" : "enviado";
   }
 
@@ -625,6 +721,8 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
       ? [{ id: "m" + (Date.now() + 1), de: para, para: estado.euId, texto: "Deu Pingu! Vi seu recado." }]
       : [];
     setEstado((s) => ({ ...s, mensagens: [...s.mensagens, msg, ...auto] }));
+    const sb = getSupabase();
+    if (sb) void sb.from("recados").insert({ id: msg.id, de: msg.de, para: msg.para, texto: msg.texto });
   }
 
   async function setFoto(dataUrl: string, arquivoNome?: string) {
@@ -828,6 +926,20 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  function garantirChave() {
+    const c = estado.contas.find((x) => x.userId === estado.euId);
+    if (!c) return "";
+    if (c.chave) return c.chave;
+    const chave = Array.from({ length: 8 }, () => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
+    setEstado((s) => ({
+      ...s,
+      contas: s.contas.map((x) => (x.userId === s.euId ? { ...x, chave } : x)),
+    }));
+    const sb = getSupabase();
+    if (sb && c.email && !c.email.includes("@")) void sb.from("contas_cpf").update({ chave }).eq("cpf", c.email);
+    return chave;
+  }
+
   function redefinirSenha(email: string, nova: string) {
     const e = email.includes("@") ? email.trim().toLowerCase() : email.replace(/\D/g, "");
     const c = estado.contas.find((x) => x.email === e);
@@ -867,6 +979,8 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
         usuariosExtra: upsertUser(s.usuariosExtra, { ...atual, comunidades: [...atual.comunidades, slug] }),
       };
     });
+    const sb = getSupabase();
+    if (sb) void sb.from("comunidades_app").upsert({ slug, nome: nova.nome, descricao: nova.descricao, capa: nova.capa || null, tipo: nova.tipo, dono_id: nova.donoId });
   }
 
   function ehDono(slug: string) {
@@ -932,10 +1046,17 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
   function addStory(midia: string, video: boolean, arquivoNome?: string) {
     const erro = checarPublicacao("", arquivoNome);
     if (erro) return erro;
-    setEstado((s) => ({
-      ...s,
-      stories: [{ id: "st" + Date.now(), autorId: s.euId, midia, video, criadoEm: Date.now() }, ...s.stories],
-    }));
+    const id = "st" + Date.now();
+    void (async () => {
+      let url = midia;
+      if (midia.startsWith("data:")) url = await enviarMidia(midia, `${estado.euId}/${id}`);
+      setEstado((s) => ({
+        ...s,
+        stories: [{ id, autorId: s.euId, midia: url, video, criadoEm: Date.now() }, ...s.stories],
+      }));
+      const sb = getSupabase();
+      if (sb) await sb.from("stories").insert({ id, autor_id: estado.euId, midia: url, video, criado_em: Date.now() });
+    })();
   }
 
   function apagarStory(id: string) {
@@ -1108,6 +1229,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
         pedidoPendente,
         apagarConta,
         redefinirSenha,
+        garantirChave,
         pedirReset,
         resetComToken,
         ehAdmin,

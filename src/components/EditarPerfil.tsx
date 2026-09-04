@@ -2,7 +2,7 @@
 
 import { type Intencao } from "@/data/mock";
 import { usePingu } from "@/lib/store";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FotoPerfil } from "./FotoPerfil";
 import Link from "next/link";
 
@@ -17,7 +17,11 @@ const intencoes: Intencao[] = [
 ];
 
 export function EditarPerfil() {
-  const { eu, editarPerfil } = usePingu();
+  const { eu, editarPerfil, estado, garantirChave } = usePingu();
+  useEffect(() => {
+    garantirChave();
+  }, [eu.id]);
+  const chave = estado.contas.find((c) => c.userId === eu.id)?.chave;
   const [aberto, setAberto] = useState(false);
   const [nome, setNome] = useState(eu.nome);
   const [cidade, setCidade] = useState(eu.cidade);
@@ -28,11 +32,21 @@ export function EditarPerfil() {
   const [frase, setFrase] = useState(eu.quemSouEu);
   const [idadePublica, setIdadePublica] = useState(eu.idadePublica !== false);
 
+  const aviso = chave ? (
+    <div className="mt-3 rounded-xl border-2 border-[#ff4f8b] bg-white p-3">
+      <p className="text-xs font-bold text-[#c2185b]">Anota este código. É o ÚNICO jeito de recuperar a senha se esquecer.</p>
+      <p className="mt-1 text-center text-2xl font-extrabold tracking-widest">{chave}</p>
+    </div>
+  ) : null;
+
   if (!aberto) {
     return (
-      <button type="button" className="btn-secundario mt-3" onClick={() => setAberto(true)}>
-        Editar perfil
-      </button>
+      <div>
+        {aviso}
+        <button type="button" className="btn-secundario mt-3" onClick={() => setAberto(true)}>
+          Editar perfil
+        </button>
+      </div>
     );
   }
 
@@ -56,6 +70,12 @@ export function EditarPerfil() {
       }}
     >
       <p className="font-bold">Editar perfil</p>
+      {chave && (
+        <div className="rounded-xl border-2 border-[#ff4f8b] bg-white p-3">
+          <p className="text-xs font-bold text-[#c2185b]">Anota este código. É o ÚNICO jeito de recuperar a senha.</p>
+          <p className="mt-1 text-center text-2xl font-extrabold tracking-widest">{chave}</p>
+        </div>
+      )}
       <FotoPerfil donoId={eu.id} />
       <Link href="/pingu-cara" className="block text-sm font-semibold text-[#ff5a9a]">
         Ou montar PinguCara

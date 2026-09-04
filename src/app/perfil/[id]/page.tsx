@@ -58,14 +58,24 @@ export default function PerfilPage({ params }: { params: Promise<{ id: string }>
                   onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
-                    const local = URL.createObjectURL(file);
-                    setPreview(local);
-                    const reader = new FileReader();
-                    reader.onload = async () => {
-                      const r = await setFoto(String(reader.result), file.name);
-                      if (r !== "ok") alert(r);
+                    setPreview(URL.createObjectURL(file));
+                    const img = new Image();
+                    img.onload = async () => {
+                      const canvas = document.createElement("canvas");
+                      const max = 320;
+                      const scale = Math.min(1, max / Math.max(img.width, img.height));
+                      canvas.width = Math.round(img.width * scale);
+                      canvas.height = Math.round(img.height * scale);
+                      canvas.getContext("2d")?.drawImage(img, 0, 0, canvas.width, canvas.height);
+                      const data = canvas.toDataURL("image/jpeg", 0.72);
+                      try {
+                        const r = await setFoto(data, file.name);
+                        if (r !== "ok") alert(r);
+                      } catch {
+                        alert("Erro ao salvar foto");
+                      }
                     };
-                    reader.readAsDataURL(file);
+                    img.src = URL.createObjectURL(file);
                   }}
                 />
               </label>

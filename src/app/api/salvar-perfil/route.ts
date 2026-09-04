@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   if (typeof foto === "string" && foto.startsWith("data:")) {
     const [, b64] = foto.split(",");
     const bin = Buffer.from(b64 || "", "base64");
-    const path = `avatars/${cpf}.jpg`;
+    const path = `avatars/${cpf}-${Date.now()}.jpg`;
     const up = await sb.storage.from("midia").upload(path, bin, { contentType: "image/jpeg", upsert: true });
     if (up.error) return NextResponse.json({ ok: false, error: "Pasta midia: " + up.error.message }, { status: 400 });
     foto = sb.storage.from("midia").getPublicUrl(path).data.publicUrl + "?v=" + Date.now();

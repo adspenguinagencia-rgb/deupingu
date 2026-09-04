@@ -784,7 +784,6 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     if (erro) return erro;
     let url = dataUrl;
     setEstado((s) => patchEu(s, (u) => ({ ...u, avatar: dataUrl, fotos: [dataUrl, ...u.fotos.slice(0, 5)] })));
-    if (dataUrl.startsWith("data:")) url = await enviarMidia(dataUrl, `${estado.euId}/avatar`);
     const sb = getSupabase();
     const conta = estado.contas.find((c) => c.userId === estado.euId);
     {

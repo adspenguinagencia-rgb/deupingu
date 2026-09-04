@@ -17,7 +17,8 @@ const intencoes: Intencao[] = [
 ];
 
 export default function EntrarPage() {
-  const { entrar, login, sair, eu, estado, apagarConta, redefinirSenha } = usePingu();
+  const { entrar, login, sair, eu, estado, apagarConta, pedirReset } = usePingu();
+  const [linkReset, setLinkReset] = useState("");
   const router = useRouter();
   const [modo, setModo] = useState<"cadastro" | "login" | "esqueci">("cadastro");
   const [nome, setNome] = useState("");
@@ -66,23 +67,25 @@ export default function EntrarPage() {
             e.preventDefault();
             setErro("");
             setOk("");
-            if (senha !== senha2) return setErro("As duas senhas precisam ser iguais.");
-            const r = redefinirSenha(email, senha);
-            if (r !== "ok") setErro(r);
-            else {
-              setOk("Senha nova gravada. Entra com o e-mail e a senha nova.");
-              setModo("login");
-            }
+            setLinkReset("");
+            const r = pedirReset(email);
+            if ("erro" in r) return setErro(r.erro);
+            setOk(r.ok);
+            setLinkReset(r.link || "");
+            window.location.href = `mailto:${email}?subject=PinguOrk redefinir senha&body=${encodeURIComponent("Abra este link para mudar a senha: " + (r.link || ""))}`;
           }}
         >
-          <p className="text-sm">Digite o e-mail da conta e a senha nova duas vezes.</p>
+          <p className="text-sm">Digite o e-mail da conta. Abre o app de e-mail com o link para mudar a senha.</p>
           <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="E-mail cadastrado" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
-          <input required type="password" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="Senha nova" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
-          <input required type="password" value={senha2} onChange={(e) => setSenha2(e.target.value)} placeholder="Repete a senha nova" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
           {erro && <p className="text-sm text-[var(--rosa-escuro)]">{erro}</p>}
           {ok && <p className="text-sm">{ok}</p>}
+          {linkReset && (
+            <p className="break-all text-xs">
+              Link: <a className="text-[#ff4f8b] underline" href={linkReset}>{linkReset}</a>
+            </p>
+          )}
           <button className="btn-primario w-full" type="submit">
-            Mudar senha
+            Enviar link
           </button>
         </form>
       ) : (
@@ -141,6 +144,11 @@ export default function EntrarPage() {
           )}
           <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="E-mail" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
           <input required type="password" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="Senha" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
+          {modo === "login" && (
+            <button type="button" className="text-sm font-semibold text-[#ff4f8b]" onClick={() => setModo("esqueci")}>
+              Esqueci a senha
+            </button>
+          )}
           {modo === "cadastro" && (
             <>
               <input required type="password" value={senha2} onChange={(e) => setSenha2(e.target.value)} placeholder="Repete a senha" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />

@@ -30,10 +30,6 @@ export function FotoPerfil({ donoId }: { donoId: string }) {
 
   return (
     <div className="mt-3 space-y-2">
-      {eu.avatar ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={eu.avatar} alt="" className="h-24 w-24 rounded-full object-cover" />
-      ) : null}
       <div className="flex flex-wrap gap-2">
         <Link href="/pingu-cara" className="btn-primario">
           PinguCara

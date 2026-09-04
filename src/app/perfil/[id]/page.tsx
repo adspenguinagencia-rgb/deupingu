@@ -43,7 +43,6 @@ export default function PerfilPage({ params }: { params: Promise<{ id: string }>
               {usuario.nome.split(" ").map((n) => n[0]).slice(0, 2).join("")}
             </div>
           )}
-          <FotoPerfil donoId={usuario.id} />
           <h1 className="mt-3 text-2xl font-extrabold">{usuario.nome}</h1>
           {usuario.apelido && <p className="text-sm font-semibold text-[#ff4f8b]">@{usuario.apelido}</p>}
           <p className="text-sm text-[var(--texto-2)]">

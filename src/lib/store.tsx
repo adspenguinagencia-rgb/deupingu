@@ -210,7 +210,6 @@ const Ctx = createContext<{
   pedidoPendente: (slug: string) => boolean;
   apagarConta: () => void;
   redefinirSenha: (email: string, nova: string) => string;
-  garantirChave: () => string;
   pedirReset: (email: string) => { ok: string; link?: string } | { erro: string };
   resetComToken: (token: string, nova: string) => string;
   ehAdmin: boolean;
@@ -926,20 +925,6 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  function garantirChave() {
-    const c = estado.contas.find((x) => x.userId === estado.euId);
-    if (!c) return "";
-    if (c.chave) return c.chave;
-    const chave = Array.from({ length: 8 }, () => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
-    setEstado((s) => ({
-      ...s,
-      contas: s.contas.map((x) => (x.userId === s.euId ? { ...x, chave } : x)),
-    }));
-    const sb = getSupabase();
-    if (sb && c.email && !c.email.includes("@")) void sb.from("contas_cpf").update({ chave }).eq("cpf", c.email);
-    return chave;
-  }
-
   function redefinirSenha(email: string, nova: string) {
     const e = email.includes("@") ? email.trim().toLowerCase() : email.replace(/\D/g, "");
     const c = estado.contas.find((x) => x.email === e);
@@ -1229,7 +1214,6 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
         pedidoPendente,
         apagarConta,
         redefinirSenha,
-        garantirChave,
         pedirReset,
         resetComToken,
         ehAdmin,

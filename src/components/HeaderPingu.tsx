@@ -29,7 +29,7 @@ export function HeaderPingu() {
           <Link href="/" className="flex items-center gap-2 shrink-0">
             <LogoPingu />
             <span className="font-[family-name:var(--font-display)] text-xl font-extrabold text-[#ff5a9a]">
-              Deu Pingo
+              Deu Pingu
             </span>
           </Link>
           <nav className="mx-auto hidden items-center gap-1 md:flex">
@@ -51,6 +51,66 @@ export function HeaderPingu() {
               );
             })}
           </nav>
+          <div className="ml-auto flex items-center gap-2 sm:hidden">
+            <Link href={`/perfil/${eu.id}`}>
+              <Avatar usuario={eu} size={32} />
+            </Link>
+            <button type="button" onClick={() => { sair(); router.push("/entrar"); }} className="text-[#7a5a66]">
+              ↪
+            </button>
+          </div>
+          <div className="ml-auto hidden items-center gap-2 sm:flex">
+            <Link href="/conversas" className="relative grid h-9 w-9 place-items-center text-lg" title="Corações">
+              ♥
+              {coracoesNovos > 0 && (
+                <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#ff5a9a] px-1 text-[10px] font-bold text-white">
+                  {coracoesNovos}
+                </span>
+              )}
+            </Link>
+            <Link href="/conversas" className="relative grid h-9 w-9 place-items-center text-lg" title="Mensagens">
+              💬
+              {msgsNovas + recadosNovos > 0 && (
+                <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#ff5a9a] px-1 text-[10px] font-bold text-white">
+                  {msgsNovas + recadosNovos}
+                </span>
+              )}
+            </Link>
+            <Link href="/gente" className="grid h-9 w-9 place-items-center text-lg" title="Gente">
+              👁
+            </Link>
+            <Link href="/conversas" className="relative grid h-9 w-9 place-items-center text-lg" title="Avisos">
+              🔔
+              {coracoesNovos + recadosNovos > 0 && (
+                <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#3b82f6] px-1 text-[10px] font-bold text-white">
+                  {coracoesNovos + recadosNovos}
+                </span>
+              )}
+            </Link>
+            <Link href={`/perfil/${eu.id}`}>
+              <Avatar usuario={eu} size={48} />
+            </Link>
+            <button
+              type="button"
+              onClick={() => {
+                sair();
+                router.push("/entrar");
+              }}
+              className="text-[#7a5a66]"
+              title="Sair da conta"
+            >
+              ↪
+            </button>
+          </div>
+        </div>
+      </header>
+      <nav className="fixed bottom-0 left-0 right-0 z-40 grid grid-cols-5 items-end border-t border-[#f3d4e0] bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
+        <Link href="/" className="py-2 text-center text-[11px] font-extrabold text-[#ff5a9a]">Feed</Link>
+        <Link href="/comunidades" className="py-2 pr-2 text-center text-[11px] font-extrabold text-[#ff5a9a]">Comunidade</Link>
+        <Link href="/conversas" className="border-l border-[#ffd0e0] py-2 pl-2 text-center text-[11px] font-extrabold text-[#ff5a9a]">Msg</Link>
+        <Link href="/pinguads" className="py-2 text-center text-[11px] font-extrabold text-[#ff5a9a]">Ads</Link>
+        <Link href={`/perfil/${eu.id}`} className="py-2 text-center text-[11px] font-extrabold text-[#ff5a9a]">Perfil</Link>
+      </nav>
           <div className="ml-auto flex items-center gap-2 sm:hidden">
             <Link href={`/perfil/${eu.id}`}>
               <Avatar usuario={eu} size={32} />

@@ -13,7 +13,7 @@ export function ChatBox({ comId }: { comId: string }) {
   return (
     <div className="card p-4">
       <h2 className="font-bold text-[var(--rosa-escuro)]">Chat com {outro.nome}</h2>
-      <p className="text-xs text-[var(--texto-3)]">Deu Pingo! Vocês se acharam entre uma comunidade e um scrap.</p>
+      <p className="text-xs text-[var(--texto-3)]">Deu Pingu! Vocês se acharam entre uma comunidade e um scrap.</p>
       <div className="mt-3 max-h-64 space-y-2 overflow-y-auto">
         {msgs.length === 0 && <p className="text-sm text-[var(--texto-3)]">Manda a primeira mensagem.</p>}
         {msgs.map((m) => (

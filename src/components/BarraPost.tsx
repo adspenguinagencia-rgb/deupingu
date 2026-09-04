@@ -26,7 +26,7 @@ export function BarraPost({
       </button>
       {!proprio && (
         <button type="button" className="btn-crush" onClick={() => crush(autorId)} disabled={enviado && !match}>
-          {match ? "♥ Deu Pingo" : enviado ? "♥ Enviado" : "♥ Crush secreto"}
+          {match ? "♥ Deu Pingu" : enviado ? "♥ Enviado" : "♥ Crush secreto"}
         </button>
       )}
     </div>

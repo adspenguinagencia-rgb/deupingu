@@ -462,8 +462,21 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
   const eu = getUsuario(estado.euId) || usuariosBase[0];
 
   function patchEu(s: Estado, fn: (u: Usuario) => Usuario): Estado {
-    const atual = s.usuariosExtra.find((u) => u.id === s.euId) || usuariosBase.find((u) => u.id === s.euId);
-    if (!atual) return s;
+    const atual =
+      s.usuariosExtra.find((u) => u.id === s.euId) ||
+      usuariosBase.find((u) => u.id === s.euId) || {
+        id: s.euId,
+        nome: "Eu",
+        idade: 25,
+        cidade: "",
+        intencao: "Aberto a conhecer" as const,
+        quemSouEu: "",
+        comunidades: [],
+        avaliacoes: { legal: 50, confiavel: 50, sexy: 50 },
+        fotos: [],
+        avatarCor: "#EC407A",
+        acento: "#EC407A",
+      };
     return { ...s, usuariosExtra: upsertUser(s.usuariosExtra, fn({ ...atual })) };
   }
 

@@ -29,23 +29,32 @@ export function FotoPerfil({ donoId }: { donoId: string }) {
   if (donoId !== eu.id) return null;
 
   return (
-    <div className="mt-3 flex flex-wrap gap-2">
-    <Link href="/pingu-cara" className="btn-primario">PinguCara</Link>
-    <label className="btn-secundario inline-block cursor-pointer">
-      Trocar foto
-      <input
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={async (e) => {
-          const file = e.target.files?.[0];
-          if (!file) return;
-          const data = await reduzir(file);
-          const r = await setFoto(data, file.name);
-          if (r !== "ok") alert(r);
-        }}
-      />
-    </label>
+    <div className="mt-3 space-y-2">
+      {eu.avatar ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={eu.avatar} alt="" className="h-24 w-24 rounded-full object-cover" />
+      ) : null}
+      <div className="flex flex-wrap gap-2">
+        <Link href="/pingu-cara" className="btn-primario">
+          PinguCara
+        </Link>
+        <label className="btn-secundario inline-block cursor-pointer">
+          Trocar foto
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              const data = await reduzir(file);
+              const r = await setFoto(data, file.name);
+              if (r !== "ok") alert(r);
+              else alert("Foto trocada.");
+            }}
+          />
+        </label>
+      </div>
     </div>
   );
 }

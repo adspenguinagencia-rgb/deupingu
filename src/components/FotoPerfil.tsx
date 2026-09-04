@@ -41,7 +41,7 @@ export function FotoPerfil({ donoId }: { donoId: string }) {
           const file = e.target.files?.[0];
           if (!file) return;
           const data = await reduzir(file);
-          const r = setFoto(data, file.name);
+          const r = await setFoto(data, file.name);
           if (r !== "ok") alert(r);
         }}
       />

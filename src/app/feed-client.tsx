@@ -19,7 +19,7 @@ export function FeedClient() {
   const [erro, setErro] = useState("");
   const [comentarEm, setComentarEm] = useState("");
   const [ampliar, setAmpliar] = useState<{ src: string; video?: boolean } | null>(null);
-  const gente = recomendados.slice(0, 5);
+  const gente = recomendados.slice(0, 8);
   const minhas = comunidades.filter((c) => {
     const eu = getUsuario(estado.euId);
     return eu?.comunidades.includes(c.slug);
@@ -110,6 +110,30 @@ export function FeedClient() {
           <StoriesBar />
         </div>
 
+        <div className="card p-4 lg:hidden">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-bold">Pessoas novas pra conhecer</h2>
+            <Link href="/gente" className="text-xs font-bold text-[#ff4f8b]">
+              Ver mais
+            </Link>
+          </div>
+          <ul className="mt-3 space-y-3">
+            {gente.map((u) => (
+              <li key={u.id} className="flex items-center gap-3">
+                <Link href={`/perfil/${u.id}`}>
+                  <Avatar usuario={u} size={56} />
+                </Link>
+                <div>
+                  <Link href={`/perfil/${u.id}`} className="text-sm font-bold hover:underline">
+                    {u.nome}
+                  </Link>
+                  <p className="text-xs text-[#ff4f8b]">{u.apelido ? `@${u.apelido}` : u.cidade}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+
         {estado.campanhas.filter((c) => {
           if (c.status !== "aprovado") return false;
           const eu = getUsuario(estado.euId);
@@ -191,7 +215,7 @@ export function FeedClient() {
           })}
       </section>
 
-      <aside className="hidden space-y-4 lg:block">
+      <aside className="space-y-4">
         <div className="card p-4">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold">Pessoas novas pra conhecer</h2>

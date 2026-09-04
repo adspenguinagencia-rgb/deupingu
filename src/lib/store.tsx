@@ -210,6 +210,7 @@ const Ctx = createContext<{
   pedidoPendente: (slug: string) => boolean;
   apagarConta: () => void;
   redefinirSenha: (email: string, nova: string) => string;
+  garantirChave: () => string;
   pedirReset: (email: string) => { ok: string; link?: string } | { erro: string };
   resetComToken: (token: string, nova: string) => string;
   ehAdmin: boolean;
@@ -320,16 +321,19 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
           extra = upsertUser(extra, {
             id: row.user_id,
             nome: row.nome || "Pinguim",
-            idade: 25,
+            idade: row.idade || 25,
             cidade: row.cidade || "",
             uf: row.uf || "",
-            intencao: "Aberto a conhecer",
-            quemSouEu: "Conta Deu Pingu.",
+            intencao: row.intencao || "Aberto a conhecer",
+            quemSouEu: row.frase || "Conta Deu Pingu.",
             comunidades: [],
             avaliacoes: { legal: 50, confiavel: 50, sexy: 50 },
-            fotos: [],
+            fotos: row.foto ? [row.foto] : [],
+            avatar: row.foto || undefined,
             avatarCor: "#EC407A",
             acento: "#EC407A",
+            sexo: row.sexo || undefined,
+            apelido: row.apelido || undefined,
           });
           if (row.cpf && !contas.some((c) => c.email === row.cpf)) {
             contas.push({ email: row.cpf, senha: row.senha || "", userId: row.user_id, chave: row.chave });
@@ -730,13 +734,44 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     let url = dataUrl;
     if (dataUrl.startsWith("data:")) url = await enviarMidia(dataUrl, `${estado.euId}/avatar`);
     const sb = getSupabase();
-    if (sb) await sb.from("profiles").update({ foto: url }).eq("id", estado.euId);
+    if (sb) {
+      const conta = estado.contas.find((c) => c.userId === estado.euId);
+      if (conta && !String(conta.email).includes("@")) {
+        await sb.from("contas_cpf").update({ foto: url }).eq("user_id", estado.euId);
+        await sb.from("contas_cpf").update({ foto: url }).eq("cpf", conta.email);
+      }
+    }
     setEstado((s) => patchEu(s, (u) => ({ ...u, avatar: url, fotos: [url, ...u.fotos.slice(0, 5)] })));
     return "ok";
   }
 
   function editarPerfil(dados: Partial<Usuario>) {
     setEstado((s) => patchEu(s, (u) => ({ ...u, ...dados })));
+    const sb = getSupabase();
+    if (sb) {
+      void sb.from("profiles").upsert({
+        id: estado.euId,
+        nome: dados.nome,
+        cidade: dados.cidade,
+        uf: dados.uf,
+        idade: dados.idade,
+        sexo: dados.sexo,
+        intencao: dados.intencao,
+      });
+      const conta = estado.contas.find((c) => c.userId === estado.euId);
+      if (conta && !conta.email.includes("@")) {
+        void sb.from("contas_cpf").update({
+          nome: dados.nome,
+          cidade: dados.cidade,
+          uf: dados.uf,
+          idade: dados.idade,
+          sexo: dados.sexo,
+          intencao: dados.intencao,
+          frase: dados.quemSouEu,
+          apelido: dados.apelido,
+        }).eq("cpf", conta.email);
+      }
+    }
   }
 
   function jaVotou(para: string, tipo: Voto["tipo"]) {
@@ -923,6 +958,20 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     } catch {
       return "Código inválido.";
     }
+  }
+
+  function garantirChave() {
+    const c = estado.contas.find((x) => x.userId === estado.euId);
+    if (!c) return "";
+    if (c.chave) return c.chave;
+    const chave = Array.from({ length: 8 }, () => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
+    setEstado((s) => ({
+      ...s,
+      contas: s.contas.map((x) => (x.userId === s.euId ? { ...x, chave } : x)),
+    }));
+    const sb = getSupabase();
+    if (sb && c.email && !c.email.includes("@")) void sb.from("contas_cpf").update({ chave }).eq("cpf", c.email);
+    return chave;
   }
 
   function redefinirSenha(email: string, nova: string) {
@@ -1214,6 +1263,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
         pedidoPendente,
         apagarConta,
         redefinirSenha,
+        garantirChave,
         pedirReset,
         resetComToken,
         ehAdmin,

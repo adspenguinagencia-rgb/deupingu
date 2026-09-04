@@ -27,6 +27,9 @@ export async function enviarMidia(dataUrl: string, path: string) {
   const ext = mime.includes("video") ? "mp4" : "jpg";
   const file = `${path}.${ext}`;
   const { error } = await sb.storage.from("midia").upload(file, bin, { contentType: mime, upsert: true });
-  if (error) return dataUrl;
+  if (error) {
+    console.error("upload midia", error.message);
+    return dataUrl;
+  }
   return sb.storage.from("midia").getPublicUrl(file).data.publicUrl;
 }

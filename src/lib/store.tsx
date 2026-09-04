@@ -454,6 +454,11 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
   async function login(email: string, senha: string) {
     const bruto = email.trim().toLowerCase();
     const chave = bruto.includes("@") ? bruto : bruto.replace(/\D/g, "");
+    const local = estado.contas.find((x) => x.email === chave && x.senha === senha);
+    if (local) {
+      setEstado((s) => ({ ...s, euId: local.userId }));
+      return "ok";
+    }
     const sb = getSupabase();
     if (sb && !chave.includes("@")) {
       const { data: row } = await sb.from("contas_cpf").select("*").eq("cpf", chave).maybeSingle();
@@ -824,13 +829,15 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
   }
 
   function redefinirSenha(email: string, nova: string) {
-    const e = email.trim().toLowerCase();
+    const e = email.includes("@") ? email.trim().toLowerCase() : email.replace(/\D/g, "");
     const c = estado.contas.find((x) => x.email === e);
-    if (!c) return "Esse e-mail não tem conta neste navegador.";
+    if (!c) return "Esse WhatsApp não tem conta neste navegador.";
     setEstado((s) => ({
       ...s,
       contas: s.contas.map((x) => (x.email === e ? { ...x, senha: nova } : x)),
     }));
+    const sb = getSupabase();
+    if (sb && !e.includes("@")) void sb.from("contas_cpf").update({ senha: nova }).eq("cpf", e);
     return "ok";
   }
 

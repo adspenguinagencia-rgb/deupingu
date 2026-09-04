@@ -133,7 +133,9 @@ export default function EntrarPage() {
           {modo === "cadastro" && (
             <>
               <input required value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Seu nome" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
-              <input required value={apelido} onChange={(e) => setApelido(e.target.value)} placeholder="@seu_usuario" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
+              <label className="block text-sm font-bold">Apelido único</label>
+              <input required value={apelido} onChange={(e) => setApelido(e.target.value)} placeholder="@diego_c_santana" className="w-full rounded-xl border-2 border-[#ff4f8b] px-3 py-2 text-sm" />
+              <p className="text-xs text-[#9a6b7c]">Não pode repetir. Se estiver em uso, o site avisa.</p>
               <input required value={cidade} onChange={(e) => setCidade(e.target.value)} placeholder="Cidade" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
               <select required value={uf} onChange={(e) => setUf(e.target.value)} className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm">
                 <option value="">Estado</option>
@@ -162,7 +164,7 @@ export default function EntrarPage() {
           <input required type="password" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="Senha" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
           {modo === "login" && (
             <button type="button" className="text-sm font-semibold text-[#ff4f8b]" onClick={() => setModo("esqueci")}>
-              Fala com o dono se esqueceu a senha
+              Clica em Esqueci a senha e coloca seu código de acesso
             </button>
           )}
           {modo === "cadastro" && (

@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+:root {
+  --rosa-principal: #ff3d7f;
+  --rosa-hover: #e42768;
+  --rosa-claro: #ff8ab3;
+  --rosa-fundo: #ffe4ef;
+  --rosa-fundo-2: #fff3f8;
+  --rosa-escuro: #b31255;
+  --off-white: #fff7fa;
+  --texto: #2b1c24;
+  --texto-2: #6b5560;
+  --texto-3: #9a8790;
+  --borda: #f3c9d8;
+}
+
+html,
+body {
+  background:
+    radial-gradient(900px 400px at 10% -10%, #ffd6e8 0%, transparent 50%),
+    radial-gradient(700px 360px at 100% 0%, #ffe9f2 0%, transparent 45%),
+    linear-gradient(180deg, #fff7fb 0%, #ffeaf3 100%);
+  color: var(--texto);
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 26px;
+  box-shadow: 0 18px 40px rgba(179, 18, 85, 0.07);
+  backdrop-filter: blur(10px);
+}
+
+.chip {
+  border-radius: 999px;
+  background: #ffe4ef;
+  color: var(--rosa-escuro);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+}
+
+.btn-primario {
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ff5b93 0%, #ff3d7f 100%);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 16px;
+  box-shadow: 0 8px 16px rgba(255, 61, 127, 0.25);
+}
+
+.btn-primario:hover {
+  background: var(--rosa-hover);
+}
+
+.btn-secundario {
+  border-radius: 999px;
+  border: 1px solid var(--borda);
+  background: #fff;
+  color: var(--rosa-escuro);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 16px;
+}
+
+.badge-breve {
+  border-radius: 999px;
+  background: #ffe4ef;
+  color: #c2185b;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+}

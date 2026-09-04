@@ -1,0 +1,103 @@
+"use client";
+
+import { type Intencao } from "@/data/mock";
+import { usePingu } from "@/lib/store";
+import { useState } from "react";
+import { FotoPerfil } from "./FotoPerfil";
+import Link from "next/link";
+
+const intencoes: Intencao[] = [
+  "Relacionamento",
+  "Aberto a conhecer",
+  "Só amizade",
+  "Não sei ainda",
+  "Só tô olhando, prometo",
+  "Casado",
+  "Só trabalho",
+];
+
+export function EditarPerfil() {
+  const { eu, editarPerfil } = usePingu();
+  const [aberto, setAberto] = useState(false);
+  const [nome, setNome] = useState(eu.nome);
+  const [cidade, setCidade] = useState(eu.cidade);
+  const [uf, setUf] = useState(eu.uf || "");
+  const [idade, setIdade] = useState(String(eu.idade));
+  const [sexo, setSexo] = useState(eu.sexo || "outro");
+  const [intencao, setIntencao] = useState(eu.intencao);
+  const [frase, setFrase] = useState(eu.quemSouEu);
+  const [idadePublica, setIdadePublica] = useState(eu.idadePublica !== false);
+
+  if (!aberto) {
+    return (
+      <button type="button" className="btn-secundario mt-3" onClick={() => setAberto(true)}>
+        Editar perfil
+      </button>
+    );
+  }
+
+  return (
+    <form
+      className="mt-4 space-y-2 rounded-2xl bg-[#fff0f5] p-4"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!cidade.trim() || !uf) return;
+        editarPerfil({
+          nome: nome.trim() || eu.nome,
+          cidade: cidade.trim(),
+          uf,
+          idade: Number(idade) || eu.idade,
+          sexo: sexo as "homem" | "mulher" | "outro",
+          intencao,
+          quemSouEu: frase.trim(),
+          idadePublica,
+        });
+        setAberto(false);
+      }}
+    >
+      <p className="font-bold">Editar perfil</p>
+      <FotoPerfil donoId={eu.id} />
+      <Link href="/pingu-cara" className="block text-sm font-semibold text-[#ff5a9a]">
+        Ou montar PinguCara
+      </Link>
+      <input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
+      <input required value={cidade} onChange={(e) => setCidade(e.target.value)} placeholder="Cidade" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
+      <select required value={uf} onChange={(e) => setUf(e.target.value)} className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm">
+        <option value="">Estado</option>
+        {"AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO".split(" ").map((s) => (
+          <option key={s}>{s}</option>
+        ))}
+      </select>
+      <input type="number" min={18} value={idade} onChange={(e) => setIdade(e.target.value)} placeholder="Idade" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
+      <select value={sexo} onChange={(e) => setSexo(e.target.value as "homem" | "mulher" | "outro")} className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm">
+        <option value="homem">Homem</option>
+        <option value="mulher">Mulher</option>
+        <option value="outro">Outro</option>
+      </select>
+      <select value={intencao} onChange={(e) => setIntencao(e.target.value as Intencao)} className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm">
+        {intencoes.map((i) => (
+          <option key={i}>{i}</option>
+        ))}
+      </select>
+      <textarea
+        value={frase}
+        onChange={(e) => setFrase(e.target.value)}
+        rows={4}
+        className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm"
+        placeholder="Gosto de foto no fim da tarde..."
+      />
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" checked={idadePublica} onChange={(e) => setIdadePublica(e.target.checked)} />
+        Mostrar idade
+      </label>
+      <div className="flex gap-2">
+        <button className="btn-primario" type="submit">
+          Salvar
+        </button>
+        <button type="button" className="btn-secundario" onClick={() => setAberto(false)}>
+          Cancelar
+        </button>
+      </div>
+    </form>
+  );
+}

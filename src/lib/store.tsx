@@ -107,7 +107,7 @@ export const ADMIN_SENHA = "@1234567";
 export const ADMIN_ID = "dono-pinguork";
 
 const inicial: Estado = {
-  euId: usuarioLogadoId,
+  euId: "",
   scraps: scrapsBase,
   depoimentos: depoimentosBase,
   posts: postsBase,
@@ -279,6 +279,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
             { email: ADMIN_EMAIL, senha: ADMIN_SENHA, userId: ADMIN_ID },
             ...(parsed.contas || []).filter((c: Conta) => c.email !== ADMIN_EMAIL),
           ],
+          euId: (parsed.contas || []).some((c: Conta) => c.userId === parsed.euId) || parsed.euId === ADMIN_ID ? parsed.euId : "",
           posts: (() => {
             const salvos: Post[] = parsed.posts || [];
             const ids = new Set(salvos.map((p) => p.id));
@@ -392,7 +393,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
   }
 
   function sair() {
-    setEstado((s) => ({ ...s, euId: usuarioLogadoId }));
+    setEstado((s) => ({ ...s, euId: "" }));
   }
 
   function checar(texto: string, arquivoNome?: string) {

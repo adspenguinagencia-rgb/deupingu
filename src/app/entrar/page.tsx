@@ -17,7 +17,7 @@ const intencoes: Intencao[] = [
 ];
 
 export default function EntrarPage() {
-  const { entrar, login, sair, eu, apagarConta, redefinirSenha } = usePingu();
+  const { entrar, login, sair, eu, estado, apagarConta, redefinirSenha } = usePingu();
   const router = useRouter();
   const [modo, setModo] = useState<"cadastro" | "login" | "esqueci">("cadastro");
   const [nome, setNome] = useState("");
@@ -42,9 +42,11 @@ export default function EntrarPage() {
       <p className="mt-2 text-sm text-[var(--texto-2)]">
         E-mail e senha ficam neste navegador. E-mail de verdade só quando o site estiver no servidor.
       </p>
-      <p className="mt-1 text-sm">
-        Agora você está como <b>{eu.nome}</b>.
-      </p>
+      {estado.euId ? (
+        <p className="mt-1 text-sm">Agora você está como <b>{eu.nome}</b>.</p>
+      ) : (
+        <p className="mt-1 text-sm">Cria uma conta com e-mail e senha para entrar.</p>
+      )}
       <div className="mt-3 flex flex-wrap gap-2">
         <button type="button" className={modo === "cadastro" ? "btn-primario" : "btn-secundario"} onClick={() => setModo("cadastro")}>
           Cadastrar

@@ -51,7 +51,15 @@ export function HeaderPingu() {
               );
             })}
           </nav>
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-2 sm:hidden">
+            <Link href={`/perfil/${eu.id}`}>
+              <Avatar usuario={eu} size={32} />
+            </Link>
+            <button type="button" onClick={() => { sair(); router.push("/entrar"); }} className="text-[#7a5a66]">
+              ↪
+            </button>
+          </div>
+          <div className="ml-auto hidden items-center gap-2 sm:flex">
             <Link href="/conversas" className="relative grid h-9 w-9 place-items-center text-lg" title="Corações">
               ♥
               {coracoesNovos > 0 && (
@@ -96,9 +104,15 @@ export function HeaderPingu() {
           </div>
         </div>
       </header>
-      <nav className="fixed bottom-0 left-0 right-0 z-40 grid grid-cols-4 border-t border-[#f3d4e0] bg-white md:hidden">
-        {nav.concat([{ href: "/conversas", label: "Msg" }]).map((l) => (
-          <Link key={l.href} href={l.href} className="py-3 text-center text-xs font-semibold text-[#ff5a9a]">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 grid grid-cols-5 border-t border-[#f3d4e0] bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
+        {[
+          { href: "/", label: "Feed" },
+          { href: "/comunidades", label: "Comunidades" },
+          { href: "/conversas", label: "Msg" },
+          { href: "/pinguads", label: "Ads" },
+          { href: `/perfil/${eu.id}`, label: "Perfil" },
+        ].map((l) => (
+          <Link key={l.href} href={l.href} className="py-3 text-center text-[11px] font-bold text-[#ff5a9a]">
             {l.label}
           </Link>
         ))}

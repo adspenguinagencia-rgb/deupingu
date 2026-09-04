@@ -21,6 +21,13 @@ export const metadata: Metadata = {
   description: "Amizade, scrap e um crush no meio da comunidade.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: "cover" as const,
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" className={`${display.variable} ${sans.variable} h-full antialiased`}>

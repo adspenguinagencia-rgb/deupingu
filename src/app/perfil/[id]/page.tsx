@@ -32,9 +32,9 @@ export default function PerfilPage({ params }: { params: Promise<{ id: string }>
       <div className="card overflow-hidden">
         <div className="h-28" style={{ background: usuario.acento }} />
         <div className="-mt-10 px-5 pb-5">
-          {usuario.avatar ? (
+          {(usuario.id === eu.id ? eu.avatar : usuario.avatar) ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={usuario.avatar} alt="" className="h-32 w-32 rounded-full object-cover ring-4 ring-white" />
+            <img src={(usuario.id === eu.id ? eu.avatar : usuario.avatar) || ""} alt="" className="h-32 w-32 rounded-full object-cover ring-4 ring-white" />
           ) : (
             <div
               className="flex h-32 w-32 items-center justify-center rounded-full text-3xl font-bold text-white ring-4 ring-white"

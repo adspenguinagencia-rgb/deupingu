@@ -458,7 +458,8 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     [estado.comunidadesExtra, estado.comunidadesRemovidas]
   );
 
-  const getUsuario = (id: string) => usuarios.find((u) => u.id === id) || getUsuarioBase(id);
+  const getUsuario = (id: string) =>
+    estado.usuariosExtra.find((u) => u.id === id) || usuarios.find((u) => u.id === id) || getUsuarioBase(id);
   const eu = getUsuario(estado.euId) || usuariosBase[0];
 
   function patchEu(s: Estado, fn: (u: Usuario) => Usuario): Estado {

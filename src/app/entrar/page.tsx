@@ -100,7 +100,7 @@ export default function EntrarPage() {
       ) : (
         <form
           className="mt-4 space-y-3"
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
             setErro("");
             if (modo === "cadastro" && senha !== senha2) return setErro("As duas senhas precisam ser iguais.");
@@ -108,8 +108,8 @@ export default function EntrarPage() {
             if (modo === "cadastro" && (!cidade.trim() || !uf)) return setErro("Cidade e estado são obrigatórios.");
             const r =
               modo === "login"
-                ? login(email, senha)
-                : entrar({
+                ? await login(email, senha)
+                : await entrar({
                     nome,
                     cidade,
                     uf,

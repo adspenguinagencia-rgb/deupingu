@@ -1,5 +1,6 @@
 "use client";
 
+import { getSupabase } from "@/lib/supabase";
 import {
   comunidades as comunidadesBase,
   depoimentos as depoimentosBase,
@@ -182,8 +183,9 @@ const Ctx = createContext<{
     idade?: number;
     sexo?: Usuario["sexo"];
     idadePublica?: boolean;
-  }) => string;
-  login: (email: string, senha: string) => string;
+    uf?: string;
+  }) => Promise<string> | string;
+  login: (email: string, senha: string) => Promise<string> | string;
   sair: () => void;
   mandarScrap: (para: string, texto: string) => string;
   publicarFeed: (texto: string, midia?: string, video?: boolean, arquivoNome?: string) => string;
@@ -338,7 +340,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     return { ...s, usuariosExtra: upsertUser(s.usuariosExtra, fn({ ...atual })) };
   }
 
-  function entrar(dados: {
+  async function entrar(dados: {
     nome: string;
     cidade: string;
     uf?: string;
@@ -369,12 +371,30 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
       sexo: dados.sexo,
       idadePublica: dados.idadePublica !== false,
     };
+    const sb = getSupabase();
+    if (sb && email && dados.senha) {
+      const { data, error } = await sb.auth.signUp({ email, password: dados.senha });
+      if (error) return error.message;
+      if (data.user) {
+        await sb.from("profiles").upsert({
+          id: data.user.id,
+          nome: novo.nome,
+          cidade: novo.cidade,
+          uf: novo.uf || "",
+          idade: novo.idade,
+          sexo: novo.sexo || "outro",
+          intencao: novo.intencao,
+          last_seen: new Date().toISOString(),
+        });
+        novo.id = data.user.id;
+      }
+    }
     setEstado((s) => ({
       ...s,
-      euId: id,
+      euId: novo.id,
       usuariosExtra: upsertUser(s.usuariosExtra, novo),
       contas: email
-        ? [...s.contas.filter((c) => c.email !== email), { email, senha: dados.senha || "", userId: id }]
+        ? [...s.contas.filter((c) => c.email !== email), { email, senha: dados.senha || "", userId: novo.id }]
         : s.contas,
     }));
     return "ok";
@@ -388,7 +408,40 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     return "ok";
   }
 
-  function login(email: string, senha: string) {
+  async function login(email: string, senha: string) {
+    const sb = getSupabase();
+    if (sb) {
+      const { data, error } = await sb.auth.signInWithPassword({ email: email.trim().toLowerCase(), password: senha });
+      if (error) return error.message;
+      const uid = data.user?.id;
+      if (uid) {
+        const { data: perfil } = await sb.from("profiles").select("*").eq("id", uid).maybeSingle();
+        await sb.from("profiles").upsert({ id: uid, last_seen: new Date().toISOString() });
+        setEstado((s) => ({
+          ...s,
+          euId: uid,
+          contas: [...s.contas.filter((x) => x.email !== email.trim().toLowerCase()), { email: email.trim().toLowerCase(), senha, userId: uid }],
+          usuariosExtra: perfil
+            ? upsertUser(s.usuariosExtra, {
+                id: uid,
+                nome: perfil.nome || email,
+                idade: perfil.idade || 25,
+                cidade: perfil.cidade || "",
+                uf: perfil.uf || "",
+                intencao: (perfil.intencao as any) || "Aberto a conhecer",
+                quemSouEu: "Conta Deu Pingu.",
+                comunidades: [],
+                avaliacoes: { legal: 50, confiavel: 50, sexy: 50 },
+                fotos: [],
+                avatarCor: "#EC407A",
+                acento: "#EC407A",
+                sexo: perfil.sexo,
+              })
+            : s.usuariosExtra,
+        }));
+        return "ok";
+      }
+    }
     const c = estado.contas.find((x) => x.email === email.trim().toLowerCase() && x.senha === senha);
     if (!c) return "E-mail ou senha errados.";
     const st = statusConta(c.userId);
@@ -399,6 +452,8 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
   }
 
   function sair() {
+    const sb = getSupabase();
+    if (sb) void sb.auth.signOut();
     setEstado((s) => ({ ...s, euId: "" }));
   }
 

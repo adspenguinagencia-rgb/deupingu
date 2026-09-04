@@ -29,7 +29,7 @@ export function HeaderPingu() {
           <Link href="/" className="flex items-center gap-2 shrink-0">
             <LogoPingu />
             <span className="font-[family-name:var(--font-display)] text-xl font-extrabold text-[#ff5a9a]">
-              Deupingu
+              Deu pingu
             </span>
           </Link>
           <nav className="mx-auto hidden items-center gap-1 md:flex">

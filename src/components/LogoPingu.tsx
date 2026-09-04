@@ -3,7 +3,7 @@ export function LogoPingu({ size = 36 }: { size?: number }) {
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src="/pinguim-logo.jpg"
-      alt="Deupingu"
+      alt="Deu pingu"
       width={size}
       height={size}
       className="rounded-full object-cover"

@@ -148,7 +148,7 @@ const inicial: Estado = {
   usuariosExtra: [
     {
       id: ADMIN_ID,
-      nome: "Dono Deupingu",
+      nome: "Dono Deu pingu",
       idade: 30,
       cidade: "São Paulo",
       intencao: "Só trabalho",
@@ -355,7 +355,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
       cidade: dados.cidade.trim(),
       uf: dados.uf || "",
       intencao: dados.intencao,
-      quemSouEu: "Acabei de entrar no Deupingu. Manda um scrap.",
+      quemSouEu: "Acabei de entrar no Deu pingu. Manda um scrap.",
       comunidades: [],
       seguindo: [],
       avaliacoes: { legal: 50, confiavel: 50, sexy: 50 },
@@ -682,7 +682,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
       slug,
       nome: nome.trim(),
       membros: "1",
-      descricao: descricao?.trim() || "Comunidade criada agora no Deupingu.",
+      descricao: descricao?.trim() || "Comunidade criada agora no Deu pingu.",
       cor: "#EC407A",
       donoId: estado.euId,
       capa,

@@ -17,7 +17,7 @@ const sans = Nunito_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Deupingu",
+  title: "Deu pingu",
   description: "Amizade, scrap e um crush no meio da comunidade.",
 };
 

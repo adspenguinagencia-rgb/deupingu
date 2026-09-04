@@ -1,4 +1,4 @@
-# Deupingu
+# Deu pingu
 
 Rede social de relacionamento com cara de Instagram e alma de Orkut.
 Tema rosa, logo pinguim, scraps, depoimentos e comunidades.

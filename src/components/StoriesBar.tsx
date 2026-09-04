@@ -62,8 +62,8 @@ export function StoriesBar() {
   return (
     <div>
       <div className="w-full max-w-full overflow-x-auto pb-2 snap-x">
-        <div className="flex w-max gap-2">
-        <label className="flex w-[22vw] min-w-[22vw] max-w-[22vw] shrink-0 snap-start cursor-pointer flex-col items-center gap-1">
+        <div className="flex w-max gap-2 md:gap-3">
+        <label className="flex w-[22vw] min-w-[22vw] max-w-[22vw] md:w-[88px] md:min-w-[88px] md:max-w-[88px] shrink-0 snap-start cursor-pointer flex-col items-center gap-1">
           <Avatar usuario={eu} size={88} anel />
           <span className="w-full truncate text-center text-sm font-semibold">+ Story</span>
           <input
@@ -100,7 +100,7 @@ export function StoriesBar() {
         </label>
         {autores.map((u) =>
           u ? (
-            <button key={u.id} type="button" onClick={() => abrirAutor(u.id)} className="flex w-[22vw] min-w-[22vw] max-w-[22vw] shrink-0 snap-start flex-col items-center gap-1">
+            <button key={u.id} type="button" onClick={() => abrirAutor(u.id)} className="flex w-[22vw] min-w-[22vw] max-w-[22vw] md:w-[88px] md:min-w-[88px] md:max-w-[88px] shrink-0 snap-start flex-col items-center gap-1">
               <Avatar usuario={u} size={88} anel />
               <span className="w-full truncate text-center text-sm font-semibold">{u.nome.split(" ")[0]}</span>
             </button>

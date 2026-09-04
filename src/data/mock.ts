@@ -110,7 +110,7 @@ export const comunidades: Comunidade[] = [
   { slug: "eu-nunca-terminei-uma-borracha", nome: "Eu nunca terminei uma borracha", membros: "38 mil", descricao: "Clássico absoluto.", cor: "#80DEEA" },
   { slug: "desce-e-arrasa", nome: "Deus me disse: desce e arrasa", membros: "49 mil", descricao: "Motivação duvidosa, eficaz.", cor: "#AD1457" },
   { slug: "fotos-sem-flash-no-espelho", nome: "Fotos sem flash no espelho", membros: "33 mil", descricao: "Grid obrigatório.", cor: "#F48FB1" },
-  { slug: "orkut-raiz-instagram-pela-metade", nome: "Orkut raiz, Instagram pela metade", membros: "22 mil", descricao: "A casa do PinguOrk.", cor: "#89C4E1" },
+  { slug: "orkut-raiz-instagram-pela-metade", nome: "Orkut raiz, Instagram pela metade", membros: "22 mil", descricao: "A casa do Deu pingu.", cor: "#89C4E1" },
   { slug: "quero-namorar-mas-tenho-preguica", nome: "Quero namorar mas tenho preguiça", membros: "67 mil", descricao: "Match amanhã.", cor: "#EC407A" },
   { slug: "cidade-pequena-crush-longe", nome: "Cidade pequena, crush longe", membros: "19 mil", descricao: "Amigo de amigo de outra cidade.", cor: "#A5D6A7" },
   { slug: "playlist-2008", nome: "Playlist de 2008 no repeat", membros: "28 mil", descricao: "A trilha do recado.", cor: "#B39DDB" },

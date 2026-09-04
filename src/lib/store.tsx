@@ -618,7 +618,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
         }));
         return "ok";
       }
-      if (row) return "WhatsApp ou senha errados.";
+      if (row) return "Número ou senha errado.";
     }
     if (sb && chave.includes("@")) {
       const { data, error } = await sb.auth.signInWithPassword({ email: chave, password: senha });
@@ -633,7 +633,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
           setEstado((s) => ({ ...s, euId: local.userId }));
           return "ok";
         }
-        return error.message === "Email logins are disabled" ? "E-mail ou senha. Tenta o dono ou liga Email no Supabase." : error.message;
+        return "Número ou senha errado.";
       }
       const uid = data.user?.id;
       if (uid) {
@@ -665,7 +665,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
       }
     }
     const c = estado.contas.find((x) => x.email === email.trim().toLowerCase() && x.senha === senha);
-    if (!c) return "E-mail ou senha errados.";
+    if (!c) return "Número ou senha errado.";
     const st = statusConta(c.userId);
     if (st === "excluido") return "Esta conta foi excluída permanentemente.";
     if (st === "ban7") return "Conta bloqueada por 7 dias por denúncias.";

@@ -26,11 +26,10 @@ export async function POST(req: Request) {
     const path = `avatars/${cpf}.jpg`;
     const up = await sb.storage.from("midia").upload(path, bin, { contentType: "image/jpeg", upsert: true });
     if (up.error) return NextResponse.json({ ok: false, error: "Pasta midia: " + up.error.message }, { status: 400 });
-    foto = sb.storage.from("midia").getPublicUrl(path).data.publicUrl;
+    foto = sb.storage.from("midia").getPublicUrl(path).data.publicUrl + "?v=" + Date.now();
   }
 
-  const { error } = await sb.from("contas_cpf").upsert(
-    {
+  const row: Record<string, unknown> = {
       cpf,
       senha: body.senha || "-",
       nome: body.nome || "",
@@ -43,10 +42,9 @@ export async function POST(req: Request) {
       intencao: body.intencao || "",
       frase: body.frase || "",
       apelido: body.apelido || "",
-      chave: body.chave || "",
-    },
-    { onConflict: "cpf" }
-  );
+    };
+  if (body.chave) row.chave = body.chave;
+  const { error } = await sb.from("contas_cpf").upsert(row, { onConflict: "cpf" });
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 400 });
   return NextResponse.json({ ok: true, foto });
 }

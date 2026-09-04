@@ -65,32 +65,20 @@ export function StoriesBar() {
         <div className="flex items-start justify-start gap-3">
         <label className="flex w-[72px] min-w-[72px] max-w-[72px] shrink-0 snap-start cursor-pointer flex-col items-center gap-1">
           <Avatar usuario={eu} size={72} anel />
-          <span className="w-full truncate text-center text-sm font-semibold">+ Story</span>
+          <span className="w-full truncate text-center text-sm font-semibold">+ Foto</span>
           <input
             type="file"
-            accept="image/*,video/*"
+            accept="image/*"
             className="hidden"
             onChange={(e) => {
               const f = e.target.files?.[0];
               if (!f) return;
               setErro("");
-              const video = f.type.startsWith("video");
-              if (video) {
-                const url = URL.createObjectURL(f);
-                const el = document.createElement("video");
-                el.preload = "metadata";
-                el.onloadedmetadata = () => {
-                  URL.revokeObjectURL(url);
-                  if (el.duration > 20) {
-                    setErro("Vídeo do story no máximo 20 segundos.");
-                    return;
-                  }
-                  const r = new FileReader();
-                  r.onload = () => addStory(String(r.result), true, f.name);
-                  r.readAsDataURL(f);
-                };
-                el.src = url;
-              } else {
+              if (f.type.startsWith("video")) {
+                setErro("Vídeo no story em breve.");
+                return;
+              }
+              {
                 const r = new FileReader();
                 r.onload = () => addStory(String(r.result), false, f.name);
                 r.readAsDataURL(f);

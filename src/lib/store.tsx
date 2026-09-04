@@ -382,8 +382,8 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     const bruto = (dados.email || "").trim().toLowerCase();
     const cpf = bruto.replace(/\D/g, "");
     const email = bruto.includes("@") ? bruto : cpf;
-    if (email && !email.includes("@") && cpf.length !== 11) return "CPF deve ter 11 números.";
-    if (email && estado.contas.some((c) => c.email === email)) return "Esse CPF já tem conta. Usa Entrar.";
+    if (email && !email.includes("@") && (cpf.length < 10 || cpf.length > 13)) return "WhatsApp com DDD. Ex: 11999999999";
+    if (email && estado.contas.some((c) => c.email === email)) return "Esse WhatsApp já tem conta. Usa Entrar.";
     const novo: Usuario = {
       id,
       nome: dados.nome.trim() || "Pinguim sem nome",
@@ -455,7 +455,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
         }));
         return "ok";
       }
-      if (row) return "CPF ou senha errados.";
+      if (row) return "WhatsApp ou senha errados.";
     }
     if (sb && chave.includes("@")) {
       const { data, error } = await sb.auth.signInWithPassword({ email: chave, password: senha });

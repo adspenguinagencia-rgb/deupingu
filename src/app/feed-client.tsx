@@ -98,19 +98,7 @@ export function FeedClient() {
                 }}
               />
             </label>
-            <label className="btn-secundario cursor-pointer">
-              Vídeo
-              <input
-                type="file"
-                accept="video/*"
-                className="hidden"
-                onChange={(e) => {
-                  const f = e.target.files?.[0] || null;
-                  setArquivo(f);
-                  setPreview(f ? URL.createObjectURL(f) : "");
-                }}
-              />
-            </label>
+            <span className="rounded-full border border-[#f3d4e0] px-3 py-2 text-sm text-[#9a6b7c]">Vídeo · em breve</span>
             <button type="submit" className="btn-primario ml-auto">
               Publicar
             </button>

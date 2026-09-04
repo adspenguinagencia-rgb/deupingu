@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export function Shell({ children }: { children: React.ReactNode }) {
-  const { estado, pronto } = usePingu();
+  const { estado, pronto, ehAdmin } = usePingu();
   const path = usePathname();
   const router = useRouter();
   const logado = Boolean(estado.euId);
@@ -14,7 +14,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!pronto) return;
     if (!logado && path !== "/entrar") router.replace("/entrar");
-  }, [pronto, logado, path, router]);
+    if (logado && ehAdmin && (path === "/" || path === "/feed")) router.replace("/admin");
+  }, [pronto, logado, ehAdmin, path, router]);
 
   if (!pronto) return <p className="p-8 text-center text-sm">Carregando…</p>;
   if (!logado && path !== "/entrar") return <p className="p-8 text-center text-sm">Vai para o cadastro…</p>;

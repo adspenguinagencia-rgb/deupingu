@@ -103,7 +103,7 @@ type Estado = {
 
 const KEY = "pinguork-estado-v3";
 export const ADMIN_EMAIL = "adspenguin.agencia@gmail.com";
-export const ADMIN_SENHA = "@1234567";
+export const ADMIN_SENHA = "Ana1234567";
 export const ADMIN_ID = "dono-pinguork";
 
 const inicial: Estado = {
@@ -230,6 +230,7 @@ const Ctx = createContext<{
   feedOrdenado: Post[];
   editarPost: (id: string, legenda: string) => string;
   apagarPost: (id: string) => void;
+  apagarComentario: (id: string) => void;
   criarCampanha: (dados: Omit<Campanha, "id" | "donoId" | "status" | "conversoes" | "gasto" | "motivo">) => string;
   pausarCampanha: (id: string) => void;
 } | null>(null);
@@ -798,7 +799,18 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
   }
 
   function apagarPost(id: string) {
-    setEstado((s) => ({ ...s, posts: s.posts.filter((p) => !(p.id === id && p.autorId === s.euId)) }));
+    const admin = estado.euId === ADMIN_ID || estado.contas.some((c) => c.userId === estado.euId && c.email === ADMIN_EMAIL);
+    setEstado((s) => ({
+      ...s,
+      posts: s.posts.filter((p) => p.id !== id),
+      postsComunidade: s.postsComunidade.filter((p) => p.id !== id),
+      comentarios: s.comentarios.filter((c) => c.postId !== id && c.id !== id),
+      stories: s.stories.filter((st) => st.id !== id),
+    }));
+  }
+
+  function apagarComentario(id: string) {
+    setEstado((s) => ({ ...s, comentarios: s.comentarios.filter((c) => c.id !== id) }));
   }
 
   const CUSTO: Record<Campanha["objetivo"], number> = {
@@ -952,6 +964,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
         feedOrdenado,
         editarPost,
         apagarPost,
+        apagarComentario,
         criarCampanha,
         pausarCampanha,
       }}

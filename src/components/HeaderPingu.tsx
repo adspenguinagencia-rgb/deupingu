@@ -80,10 +80,10 @@ export function HeaderPingu() {
         <Link href="/" className="py-3 text-center text-xs font-extrabold text-[#ff5a9a]">
           Feed
         </Link>
-        <Link href="/comunidades" className="py-3 pr-3 text-center text-xs font-extrabold text-[#ff5a9a]">
+        <Link href="/comunidades" className="py-3 text-center text-xs font-extrabold text-[#ff5a9a]">
           Comunidade
         </Link>
-        <Link href="/conversas" className="border-l-2 border-[#ffd0e0] py-3 pl-3 text-center text-xs font-extrabold text-[#ff5a9a]">
+        <Link href="/conversas" className="py-3 text-center text-xs font-extrabold text-[#ff5a9a]">
           Msg
         </Link>
         <Link href="/pinguads" className="py-3 text-center text-xs font-extrabold text-[#ff5a9a]">

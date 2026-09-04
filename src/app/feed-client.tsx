@@ -191,7 +191,7 @@ export function FeedClient() {
           })}
       </section>
 
-      <aside className="hidden space-y-4 lg:block">
+      <aside className="space-y-4">
         <div className="card p-4">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold">Pessoas novas pra conhecer</h2>

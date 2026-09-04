@@ -1,6 +1,6 @@
 "use client";
 
-import { getSupabase } from "@/lib/supabase";
+import { enviarMidia, getSupabase } from "@/lib/supabase";
 import {
   comunidades as comunidadesBase,
   depoimentos as depoimentosBase,
@@ -188,7 +188,7 @@ const Ctx = createContext<{
   login: (email: string, senha: string) => Promise<string> | string;
   sair: () => void;
   mandarScrap: (para: string, texto: string) => string;
-  publicarFeed: (texto: string, midia?: string, video?: boolean, arquivoNome?: string) => string;
+  publicarFeed: (texto: string, midia?: string, video?: boolean, arquivoNome?: string) => Promise<string> | string;
   mandarDepoimento: (para: string, texto: string) => void;
   aceitarDepoimento: (id: string, aceitar: boolean) => void;
   crush: (para: string) => "enviado" | "match" | "voce";
@@ -197,7 +197,7 @@ const Ctx = createContext<{
   ehMatch: (a: string, b: string) => boolean;
   mensagensCom: (id: string) => Mensagem[];
   mandarMsg: (para: string, texto: string) => void;
-  setFoto: (dataUrl: string, arquivoNome?: string) => string;
+  setFoto: (dataUrl: string, arquivoNome?: string) => Promise<string> | string;
   editarPerfil: (dados: Partial<Usuario>) => void;
   votar: (para: string, tipo: Voto["tipo"]) => void;
   jaVotou: (para: string, tipo: Voto["tipo"]) => boolean;
@@ -305,6 +305,33 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     }
     setPronto(true);
   }, []);
+
+  useEffect(() => {
+    if (!pronto) return;
+    const sb = getSupabase();
+    if (!sb) return;
+    void sb.from("posts").select("*").order("created_at", { ascending: false }).then(({ data }) => {
+      if (!data) return;
+      setEstado((s) => {
+        const ids = new Set(s.posts.map((p) => p.id));
+        const extras: Post[] = data
+          .filter((row) => !ids.has(row.id))
+          .map((row) => ({
+            id: row.id,
+            tipo: "foto" as const,
+            autorId: row.autor_id,
+            legenda: row.legenda || "",
+            cor: row.video ? "#3E2723" : "#F48FB1",
+            comunidades: [],
+            curtidas: 0,
+            comentarios: 0,
+            midia: row.midia || undefined,
+            video: !!row.video,
+          }));
+        return extras.length ? { ...s, posts: [...extras, ...s.posts] } : s;
+      });
+    });
+  }, [pronto]);
 
   useEffect(() => {
     if (!pronto) return;
@@ -469,11 +496,16 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     return "ok";
   }
 
-  function publicarFeed(texto: string, midia?: string, video?: boolean, arquivoNome?: string) {
+  async function publicarFeed(texto: string, midia?: string, video?: boolean, arquivoNome?: string) {
     const erro = checarPublicacao(texto, arquivoNome);
     if (erro) return erro;
+    const id = "p" + Date.now();
+    let url = midia;
+    if (midia && midia.startsWith("data:")) {
+      url = await enviarMidia(midia, `${estado.euId}/${id}`);
+    }
     const post: Post = {
-      id: "p" + Date.now(),
+      id,
       tipo: "foto",
       autorId: estado.euId,
       legenda: texto,
@@ -481,9 +513,19 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
       comunidades: eu.comunidades.slice(0, 1),
       curtidas: 0,
       comentarios: 0,
-      midia,
+      midia: url,
       video,
     };
+    const sb = getSupabase();
+    if (sb) {
+      await sb.from("posts").insert({
+        id,
+        autor_id: estado.euId,
+        legenda: texto,
+        midia: url || null,
+        video: !!video,
+      });
+    }
     setEstado((s) => ({ ...s, posts: [post, ...s.posts] }));
     return "ok";
   }
@@ -538,10 +580,14 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     setEstado((s) => ({ ...s, mensagens: [...s.mensagens, msg, ...auto] }));
   }
 
-  function setFoto(dataUrl: string, arquivoNome?: string) {
+  async function setFoto(dataUrl: string, arquivoNome?: string) {
     const erro = checarPublicacao("", arquivoNome);
     if (erro) return erro;
-    setEstado((s) => patchEu(s, (u) => ({ ...u, avatar: dataUrl, fotos: [dataUrl, ...u.fotos.slice(0, 5)] })));
+    let url = dataUrl;
+    if (dataUrl.startsWith("data:")) url = await enviarMidia(dataUrl, `${estado.euId}/avatar`);
+    const sb = getSupabase();
+    if (sb) await sb.from("profiles").update({ foto: url }).eq("id", estado.euId);
+    setEstado((s) => patchEu(s, (u) => ({ ...u, avatar: url, fotos: [url, ...u.fotos.slice(0, 5)] })));
     return "ok";
   }
 

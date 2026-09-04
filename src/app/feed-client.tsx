@@ -35,7 +35,7 @@ export function FeedClient() {
         <form
           id="composer"
           className="card p-4"
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
             setErro("");
             if (!texto.trim() && !arquivo) {
@@ -43,7 +43,7 @@ export function FeedClient() {
               return;
             }
             if (!arquivo) {
-              const r = publicarFeed(texto.trim() || " ");
+              const r = await publicarFeed(texto.trim() || " ");
               if (r !== "ok") {
                 setErro(r);
                 return;
@@ -57,8 +57,8 @@ export function FeedClient() {
             }
             const reader = new FileReader();
             const video = arquivo.type.startsWith("video");
-            reader.onload = () => {
-              const r = publicarFeed(texto.trim() || (video ? "Vídeo" : "Foto"), String(reader.result), video, arquivo.name);
+            reader.onload = async () => {
+              const r = await publicarFeed(texto.trim() || (video ? "Vídeo" : "Foto"), String(reader.result), video, arquivo.name);
               if (r !== "ok") {
                 setErro(r);
                 return;

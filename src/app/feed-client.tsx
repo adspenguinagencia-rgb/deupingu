@@ -8,7 +8,6 @@ import { BarraPost } from "@/components/BarraPost";
 import { Comentarios } from "@/components/Comentarios";
 import { FotoComunidade } from "@/components/FotoComunidade";
 import { StoriesBar } from "@/components/StoriesBar";
-import { EditarPost } from "@/components/EditarPost";
 import { getComunidade } from "@/data/mock";
 import { usePingu } from "@/lib/store";
 
@@ -169,7 +168,8 @@ export function FeedClient() {
                     ) : null}
                     <div className="p-4">
                       <p className="text-sm">{post.legenda}</p>
-                      <EditarPost postId={post.id} autorId={post.autorId} legenda={post.legenda} />
+
+
                       <div className="mt-2 flex flex-wrap gap-2">
                         {post.comunidades.map((s) => (
                           <Link key={s} href={`/comunidades/${s}`} className="chip">

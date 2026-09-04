@@ -46,7 +46,10 @@ body {
   html,
   body {
     font-size: 19px;
+    overflow-x: hidden !important;
   }
+  img, video { max-width: 100%; }
+
   .card {
     border-radius: 18px;
   }

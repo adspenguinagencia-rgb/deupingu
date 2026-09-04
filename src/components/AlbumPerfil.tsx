@@ -1,5 +1,6 @@
 "use client";
 
+import { EditarPost } from "@/components/EditarPost";
 import { Reacoes } from "@/components/Reacoes";
 import { usePingu } from "@/lib/store";
 import { useState } from "react";
@@ -7,14 +8,20 @@ import { useState } from "react";
 type Item = { id: string; midia: string; video: boolean; texto?: string };
 
 export function AlbumPerfil({ userId }: { userId: string }) {
-  const { estado, getUsuario } = usePingu();
+  const { estado, eu, getUsuario } = usePingu();
   const [aberto, setAberto] = useState<Item | null>(null);
   const usuario = getUsuario(userId);
+  const dono = eu.id === userId;
 
   const midias: Item[] = [
     ...estado.posts
-      .filter((p) => p.tipo === "foto" && p.autorId === userId && p.midia)
-      .map((p) => ({ id: p.id, midia: p.midia!, video: !!p.video, texto: p.tipo === "foto" ? p.legenda : undefined })),
+      .filter((p) => p.autorId === userId && p.midia)
+      .map((p) => ({
+        id: p.id,
+        midia: p.midia!,
+        video: !!p.video,
+        texto: p.tipo === "foto" ? p.legenda : p.texto,
+      })),
     ...estado.postsComunidade
       .filter((p) => p.autorId === userId && p.midia && p.status === "publicado")
       .map((p) => ({ id: p.id, midia: p.midia!, video: !!p.video, texto: p.texto })),
@@ -38,6 +45,7 @@ export function AlbumPerfil({ userId }: { userId: string }) {
               )}
             </button>
             {m.texto && <p className="line-clamp-2 px-0.5 text-[11px] text-[var(--texto-2)]">{m.texto}</p>}
+            {dono && <EditarPost postId={m.id} autorId={userId} legenda={m.texto} />}
             <Reacoes alvo={m.id} />
           </div>
         ))}
@@ -52,6 +60,7 @@ export function AlbumPerfil({ userId }: { userId: string }) {
               <img src={aberto.midia} alt="" className="max-h-[70vh] w-full rounded-xl object-contain" />
             )}
             {aberto.texto && <p className="mt-3 text-sm">{aberto.texto}</p>}
+            {dono && <EditarPost postId={aberto.id} autorId={userId} legenda={aberto.texto} />}
             <p className="mt-1 text-xs text-[var(--texto-3)]">{usuario?.nome}</p>
             <div className="mt-3">
               <Reacoes alvo={aberto.id} />

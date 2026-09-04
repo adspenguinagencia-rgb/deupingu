@@ -329,8 +329,8 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
             quemSouEu: row.frase || old?.quemSouEu || "Conta Deu Pingu.",
             comunidades: old?.comunidades || [],
             avaliacoes: old?.avaliacoes || { legal: 50, confiavel: 50, sexy: 50 },
-            fotos: row.foto ? [row.foto] : old?.fotos || [],
-            avatar: row.foto || old?.avatar,
+            fotos: (old?.avatar || "").startsWith("data:") ? old?.fotos || [] : row.foto ? [row.foto] : old?.fotos || [],
+            avatar: (old?.avatar || "").startsWith("data:") ? old?.avatar : row.foto || old?.avatar,
             avatarCor: old?.avatarCor || "#EC407A",
             acento: old?.acento || "#EC407A",
             sexo: row.sexo || old?.sexo,
@@ -783,6 +783,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     const erro = checarPublicacao("", arquivoNome);
     if (erro) return erro;
     let url = dataUrl;
+    setEstado((s) => patchEu(s, (u) => ({ ...u, avatar: dataUrl, fotos: [dataUrl, ...u.fotos.slice(0, 5)] })));
     if (dataUrl.startsWith("data:")) url = await enviarMidia(dataUrl, `${estado.euId}/avatar`);
     const sb = getSupabase();
     const conta = estado.contas.find((c) => c.userId === estado.euId);

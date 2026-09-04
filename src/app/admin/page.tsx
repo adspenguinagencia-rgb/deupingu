@@ -5,7 +5,16 @@ import { comunidades } from "@/data/mock";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
+function textoDe(x: { legenda?: string; texto?: string; nome?: string }) {
+  return String(x.legenda || x.texto || x.nome || "").toLowerCase();
+}
+
 export default function AdminPage() {
+  const ctx = usePingu();
+  const router = useRouter();
+  const [busca, setBusca] = useState("");
+  const q = busca.trim().toLowerCase();
+
   const {
     ehAdmin,
     estado,
@@ -14,67 +23,68 @@ export default function AdminPage() {
     usuarios,
     excluirComunidade,
     apagarPost,
-    apagarComentario,
     apagarStory,
-  } = usePingu();
-  const router = useRouter();
-  const [busca, setBusca] = useState("");
-  const q = busca.trim().toLowerCase();
+  } = ctx;
+  const apagarComentario = ctx.apagarComentario || ((id: string) => ctx.apagarPost(id));
 
-  const cadastrados = useMemo(() => {
-    const ids = new Set(usuarios.map((u) => u.id));
-    return ids.size;
-  }, [usuarios]);
+  const cadastrados = (estado.contas || []).length;
 
   const online = useMemo(() => {
-    const agora = Date.now();
-    const vivos = usuarios.filter((u, i) => {
-      if (u.id === estado.euId) return true;
-      return (agora / 60000 + i) % 4 !== 0;
-    }).length;
-    return Math.max(1, Math.min(cadastrados, vivos));
-  }, [usuarios, estado.euId, cadastrados]);
+    const seen = estado.lastSeen || {};
+    const limite = Date.now() - 5 * 60 * 1000;
+    const ids = new Set<string>();
+    Object.entries(seen).forEach(([id, t]) => {
+      if (typeof t === "number" && t >= limite) ids.add(id);
+    });
+    if (estado.euId) ids.add(estado.euId);
+    return ids.size;
+  }, [estado.lastSeen, estado.euId]);
 
   const comms = useMemo(() => {
+    const removidas = estado.comunidadesRemovidas || [];
     const extra = estado.comunidadesExtra || [];
-    const base = comunidades.filter((c) => !estado.comunidadesRemovidas.includes(c.slug));
-    const map = new Map(base.map((c) => [c.slug, c]));
+    const map = new Map((comunidades || []).map((c) => [c.slug, c]));
     extra.forEach((c) => map.set(c.slug, c));
-    estado.comunidadesRemovidas.forEach((s) => map.delete(s));
-    return [...map.values()].filter((c) => !q || c.nome.toLowerCase().includes(q) || c.slug.includes(q));
+    removidas.forEach((s) => map.delete(s));
+    return [...map.values()].filter((c) => !q || textoDe(c).includes(q) || c.slug.toLowerCase().includes(q));
   }, [estado.comunidadesExtra, estado.comunidadesRemovidas, q]);
 
   const pessoas = useMemo(
     () =>
-      usuarios.filter(
-        (u) =>
-          u.id !== "dono-pinguork" &&
-          (!q || u.nome.toLowerCase().includes(q) || u.cidade.toLowerCase().includes(q) || (u.uf || "").toLowerCase().includes(q))
-      ),
+      (usuarios || []).filter((u) => {
+        if (!u) return false;
+        const blob = `${u.nome} ${u.cidade} ${u.uf || ""} ${u.id}`.toLowerCase();
+        return !q || blob.includes(q);
+      }),
     [usuarios, q]
   );
 
   const posts = useMemo(
     () =>
-      estado.posts.filter(
-        (p) => !q || p.legenda.toLowerCase().includes(q) || getUsuario(p.autorId)?.nome.toLowerCase().includes(q)
-      ),
+      (estado.posts || []).filter((p) => {
+        const nome = getUsuario(p.autorId)?.nome || "";
+        return !q || textoDe(p).includes(q) || nome.toLowerCase().includes(q);
+      }),
     [estado.posts, q, getUsuario]
   );
 
   const videos = useMemo(
     () =>
-      [...estado.posts, ...estado.postsComunidade].filter(
-        (p) => p.video && p.midia && (!q || (p.legenda || p.texto || "").toLowerCase().includes(q))
-      ),
-    [estado.posts, estado.postsComunidade, q]
+      [...(estado.posts || []), ...(estado.postsComunidade || [])].filter((p) => {
+        const midia = Boolean((p as { video?: boolean; midia?: string }).video && (p as { midia?: string }).midia);
+        if (!midia) return false;
+        const nome = getUsuario(p.autorId)?.nome || "";
+        return !q || textoDe(p).includes(q) || nome.toLowerCase().includes(q);
+      }),
+    [estado.posts, estado.postsComunidade, q, getUsuario]
   );
 
   const comentarios = useMemo(
     () =>
-      estado.comentarios.filter(
-        (c) => !q || c.texto.toLowerCase().includes(q) || getUsuario(c.autorId)?.nome.toLowerCase().includes(q)
-      ),
+      (estado.comentarios || []).filter((c) => {
+        const nome = getUsuario(c.autorId)?.nome || "";
+        return !q || String(c.texto || "").toLowerCase().includes(q) || nome.toLowerCase().includes(q);
+      }),
     [estado.comentarios, q, getUsuario]
   );
 
@@ -103,31 +113,35 @@ export default function AdminPage() {
         <div className="card p-4">
           <p className="text-sm text-[var(--texto-3)]">Pessoas cadastradas</p>
           <p className="text-3xl font-extrabold">{cadastrados}</p>
+          <p className="mt-1 text-xs text-[var(--texto-3)]">Contas com e-mail neste site (neste aparelho).</p>
         </div>
         <div className="card p-4">
           <p className="text-sm text-[var(--texto-3)]">Online agora</p>
           <p className="text-3xl font-extrabold">{online}</p>
+          <p className="mt-1 text-xs text-[var(--texto-3)]">Quem usou o site nos últimos 5 minutos neste aparelho.</p>
         </div>
       </div>
 
       <div className="card p-4">
-        <h2 className="font-bold">Pessoas</h2>
+        <h2 className="font-bold">Pessoas ({pessoas.length})</h2>
         <ul className="mt-3 max-h-80 space-y-2 overflow-auto">
           {pessoas.map((u) => (
             <li key={u.id} className="flex items-center justify-between gap-2 text-sm">
               <span>
                 {u.nome} · {u.cidade}
               </span>
-              <button type="button" className="btn-secundario" onClick={() => banirUsuario(u.id)}>
-                Excluir
-              </button>
+              {u.id !== "dono-pinguork" && (
+                <button type="button" className="btn-secundario" onClick={() => banirUsuario(u.id)}>
+                  Excluir
+                </button>
+              )}
             </li>
           ))}
         </ul>
       </div>
 
       <div className="card p-4">
-        <h2 className="font-bold">Comunidades</h2>
+        <h2 className="font-bold">Comunidades ({comms.length})</h2>
         <ul className="mt-3 max-h-80 space-y-2 overflow-auto">
           {comms.map((c) => (
             <li key={c.slug} className="flex items-center justify-between gap-2 text-sm">
@@ -141,12 +155,12 @@ export default function AdminPage() {
       </div>
 
       <div className="card p-4">
-        <h2 className="font-bold">Publicações</h2>
+        <h2 className="font-bold">Publicações ({posts.length})</h2>
         <ul className="mt-3 max-h-80 space-y-2 overflow-auto">
           {posts.map((p) => (
             <li key={p.id} className="flex items-center justify-between gap-2 text-sm">
               <span className="line-clamp-2">
-                {getUsuario(p.autorId)?.nome}: {p.legenda || (p.video ? "vídeo" : "foto")}
+                {getUsuario(p.autorId)?.nome}: {p.legenda || "post"}
               </span>
               <button type="button" className="btn-secundario" onClick={() => apagarPost(p.id)}>
                 Excluir
@@ -157,11 +171,11 @@ export default function AdminPage() {
       </div>
 
       <div className="card p-4">
-        <h2 className="font-bold">Vídeos</h2>
+        <h2 className="font-bold">Vídeos ({videos.length})</h2>
         <ul className="mt-3 max-h-80 space-y-2 overflow-auto">
           {videos.map((p) => (
             <li key={p.id} className="flex items-center justify-between gap-2 text-sm">
-              <span className="line-clamp-2">{p.legenda || p.texto || "vídeo"}</span>
+              <span className="line-clamp-2">{textoDe(p) || "vídeo"}</span>
               <button type="button" className="btn-secundario" onClick={() => apagarPost(p.id)}>
                 Excluir
               </button>
@@ -171,7 +185,7 @@ export default function AdminPage() {
       </div>
 
       <div className="card p-4">
-        <h2 className="font-bold">Comentários</h2>
+        <h2 className="font-bold">Comentários ({comentarios.length})</h2>
         <ul className="mt-3 max-h-80 space-y-2 overflow-auto">
           {comentarios.map((c) => (
             <li key={c.id} className="flex items-center justify-between gap-2 text-sm">
@@ -189,8 +203,8 @@ export default function AdminPage() {
       <div className="card p-4">
         <h2 className="font-bold">Stories</h2>
         <ul className="mt-3 max-h-64 space-y-2 overflow-auto">
-          {estado.stories
-            .filter((s) => !q || getUsuario(s.autorId)?.nome.toLowerCase().includes(q))
+          {(estado.stories || [])
+            .filter((s) => !q || (getUsuario(s.autorId)?.nome || "").toLowerCase().includes(q))
             .map((s) => (
               <li key={s.id} className="flex items-center justify-between gap-2 text-sm">
                 <span>{getUsuario(s.autorId)?.nome} · story</span>

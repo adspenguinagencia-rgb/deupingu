@@ -99,6 +99,7 @@ type Estado = {
   punicoes: { userId: string; tipo: "ban7" | "excluido"; em: number; ate?: number }[];
   campanhas: Campanha[];
   saldoAds: number;
+  lastSeen: Record<string, number>;
 };
 
 const KEY = "pinguork-estado-v3";
@@ -138,6 +139,7 @@ const inicial: Estado = {
   punicoes: [],
   campanhas: [],
   saldoAds: 0,
+  lastSeen: {},
   banidos: [],
   anuncios: [
     { id: "a1", quem: "Café da Esquina", valor: 180, mes: "2026-09" },
@@ -278,6 +280,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
           punicoes: parsed.punicoes || [],
           campanhas: parsed.campanhas || [],
           saldoAds: parsed.saldoAds || 0,
+          lastSeen: parsed.lastSeen || {},
           contas: [
             { email: ADMIN_EMAIL, senha: ADMIN_SENHA, userId: ADMIN_ID },
             ...(parsed.contas || []).filter((c: Conta) => c.email !== ADMIN_EMAIL),
@@ -599,6 +602,16 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
       usuariosExtra: s.usuariosExtra.filter((u) => u.id !== s.euId),
     }));
   }
+
+
+  useEffect(() => {
+    if (!pronto || !estado.euId) return;
+    const tick = () =>
+      setEstado((s) => ({ ...s, lastSeen: { ...(s.lastSeen || {}), [s.euId]: Date.now() } }));
+    tick();
+    const id = setInterval(tick, 30000);
+    return () => clearInterval(id);
+  }, [pronto, estado.euId]);
 
   const ehAdmin = estado.euId === ADMIN_ID || estado.contas.some((c) => c.userId === estado.euId && c.email === ADMIN_EMAIL);
 

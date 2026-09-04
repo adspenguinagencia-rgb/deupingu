@@ -118,8 +118,10 @@ export default function EntrarPage() {
                     idadePublica,
                   });
             if (typeof r === "string" && r.startsWith("ok::")) {
-              setLinkReset(r.slice(4));
+              const chave = r.slice(4);
+              setLinkReset(chave);
               setOk("ANOTA ESTE CÓDIGO. Sem ele não dá para recuperar a senha.");
+              window.alert("ANOTA ESTE CÓDIGO:\n\n" + chave);
               return;
             }
             if (r !== "ok") setErro(r);

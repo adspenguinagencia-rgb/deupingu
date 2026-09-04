@@ -429,8 +429,11 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
         : s.contas,
     }));
     if (sb && email && !email.includes("@") && dados.senha) {
-      await sb.from("contas_cpf").upsert({ cpf: email, senha: dados.senha, nome: novo.nome, cidade: novo.cidade, uf: novo.uf || "", user_id: novo.id, chave: chaveRecuperacao });
+      try {
+        await sb.from("contas_cpf").upsert({ cpf: email, senha: dados.senha, nome: novo.nome, cidade: novo.cidade, uf: novo.uf || "", user_id: novo.id, chave: chaveRecuperacao });
+      } catch {}
     }
+    if (typeof window !== "undefined") window.alert("ANOTA ESTE CÓDIGO: " + chaveRecuperacao);
     return "ok::" + chaveRecuperacao;
   }
 

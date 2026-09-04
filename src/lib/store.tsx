@@ -734,19 +734,59 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     let url = dataUrl;
     if (dataUrl.startsWith("data:")) url = await enviarMidia(dataUrl, `${estado.euId}/avatar`);
     const sb = getSupabase();
-    if (sb) {
-      const conta = estado.contas.find((c) => c.userId === estado.euId);
-      if (conta && !String(conta.email).includes("@")) {
-        await sb.from("contas_cpf").update({ foto: url }).eq("user_id", estado.euId);
-        await sb.from("contas_cpf").update({ foto: url }).eq("cpf", conta.email);
-      }
+    const conta = estado.contas.find((c) => c.userId === estado.euId);
+    if (conta && !String(conta.email).includes("@")) {
+      const res = await fetch("/api/salvar-perfil", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cpf: conta.email,
+          senha: conta.senha,
+          userId: estado.euId,
+          foto: url,
+          nome: eu.nome,
+          cidade: eu.cidade,
+          uf: eu.uf,
+          idade: eu.idade,
+          sexo: eu.sexo,
+          intencao: eu.intencao,
+          frase: eu.quemSouEu,
+          apelido: eu.apelido,
+          chave: conta.chave,
+        }),
+      });
+      const j = await res.json();
+      if (!j.ok) return "Não salvou a foto: " + (j.error || "erro");
     }
     setEstado((s) => patchEu(s, (u) => ({ ...u, avatar: url, fotos: [url, ...u.fotos.slice(0, 5)] })));
     return "ok";
   }
 
-  function editarPerfil(dados: Partial<Usuario>) {
+  async function editarPerfil(dados: Partial<Usuario>) {
     setEstado((s) => patchEu(s, (u) => ({ ...u, ...dados })));
+    const conta = estado.contas.find((c) => c.userId === estado.euId);
+    if (conta && !String(conta.email).includes("@")) {
+      const euAgora = { ...eu, ...dados };
+      await fetch("/api/salvar-perfil", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cpf: conta.email,
+          senha: conta.senha,
+          userId: estado.euId,
+          foto: euAgora.avatar,
+          nome: euAgora.nome,
+          cidade: euAgora.cidade,
+          uf: euAgora.uf,
+          idade: euAgora.idade,
+          sexo: euAgora.sexo,
+          intencao: euAgora.intencao,
+          frase: euAgora.quemSouEu,
+          apelido: euAgora.apelido,
+          chave: conta.chave,
+        }),
+      });
+    }
     const sb = getSupabase();
     if (sb) {
       void sb.from("profiles").upsert({

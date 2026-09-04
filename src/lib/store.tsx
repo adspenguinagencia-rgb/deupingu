@@ -318,22 +318,25 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
         const contas = [...s.contas];
         for (const row of rows) {
           if (!row.user_id) continue;
+          const old = extra.find((u) => u.id === row.user_id);
           extra = upsertUser(extra, {
             id: row.user_id,
-            nome: row.nome || "Pinguim",
-            idade: row.idade || 25,
-            cidade: row.cidade || "",
-            uf: row.uf || "",
-            intencao: row.intencao || "Aberto a conhecer",
-            quemSouEu: row.frase || "Conta Deu Pingu.",
-            comunidades: [],
-            avaliacoes: { legal: 50, confiavel: 50, sexy: 50 },
-            fotos: row.foto ? [row.foto] : [],
-            avatar: row.foto || undefined,
-            avatarCor: "#EC407A",
-            acento: "#EC407A",
-            sexo: row.sexo || undefined,
-            apelido: row.apelido || undefined,
+            nome: row.nome || old?.nome || "Pinguim",
+            idade: row.idade || old?.idade || 25,
+            cidade: row.cidade || old?.cidade || "",
+            uf: row.uf || old?.uf || "",
+            intencao: row.intencao || old?.intencao || "Aberto a conhecer",
+            quemSouEu: row.frase || old?.quemSouEu || "Conta Deu Pingu.",
+            comunidades: old?.comunidades || [],
+            avaliacoes: old?.avaliacoes || { legal: 50, confiavel: 50, sexy: 50 },
+            fotos: row.foto ? [row.foto] : old?.fotos || [],
+            avatar: row.foto || old?.avatar,
+            avatarCor: old?.avatarCor || "#EC407A",
+            acento: old?.acento || "#EC407A",
+            sexo: row.sexo || old?.sexo,
+            apelido: row.apelido || old?.apelido,
+            idadePublica: old?.idadePublica,
+            seguindo: old?.seguindo,
           });
           if (row.cpf && !contas.some((c) => c.email === row.cpf)) {
             contas.push({ email: row.cpf, senha: row.senha || "", userId: row.user_id, chave: row.chave });

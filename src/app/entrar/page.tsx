@@ -41,12 +41,12 @@ export default function EntrarPage() {
         {modo === "cadastro" ? "Cadastrar" : modo === "login" ? "Entrar" : "Esqueci a senha"}
       </h1>
       <p className="mt-2 text-sm text-[var(--texto-2)]">
-        E-mail e senha ficam neste navegador. E-mail de verdade só quando o site estiver no servidor.
+        Cadastro com CPF e senha. O dono entra com e-mail.
       </p>
       {estado.euId ? (
         <p className="mt-1 text-sm">Agora você está como <b>{eu.nome}</b>.</p>
       ) : (
-        <p className="mt-1 text-sm">Cria uma conta com e-mail e senha para entrar.</p>
+        <p className="mt-1 text-sm">Cria uma conta com CPF e senha para entrar.</p>
       )}
       <div className="mt-3 flex flex-wrap gap-2">
         <button type="button" className={modo === "cadastro" ? "btn-primario" : "btn-secundario"} onClick={() => setModo("cadastro")}>
@@ -121,7 +121,7 @@ export default function EntrarPage() {
                     idadePublica,
                   });
             if (r !== "ok") setErro(r);
-            else router.push(email.trim().toLowerCase() === ADMIN_EMAIL ? "/admin" : "/");
+            else router.push(email.trim().toLowerCase() === ADMIN_EMAIL || email.includes("@") && email.toLowerCase().includes("adspenguin") ? "/admin" : "/");
           }}
         >
           {modo === "cadastro" && (
@@ -151,7 +151,7 @@ export default function EntrarPage() {
               </label>
             </>
           )}
-          <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="E-mail" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
+          <input required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="CPF ou e-mail do dono" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
           <input required type="password" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="Senha" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
           {modo === "login" && (
             <button type="button" className="text-sm font-semibold text-[#ff4f8b]" onClick={() => setModo("esqueci")}>

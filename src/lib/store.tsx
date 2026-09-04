@@ -379,8 +379,11 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     idadePublica?: boolean;
   }) {
     const id = slugify(dados.nome);
-    const email = (dados.email || "").trim().toLowerCase();
-    if (email && estado.contas.some((c) => c.email === email)) return "Esse e-mail já tem conta. Usa Entrar.";
+    const bruto = (dados.email || "").trim().toLowerCase();
+    const cpf = bruto.replace(/\D/g, "");
+    const email = bruto.includes("@") ? bruto : cpf;
+    if (email && !email.includes("@") && cpf.length !== 11) return "CPF deve ter 11 números.";
+    if (email && estado.contas.some((c) => c.email === email)) return "Esse CPF já tem conta. Usa Entrar.";
     const novo: Usuario = {
       id,
       nome: dados.nome.trim() || "Pinguim sem nome",
@@ -399,7 +402,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
       idadePublica: dados.idadePublica !== false,
     };
     const sb = getSupabase();
-    if (sb && email && dados.senha) {
+    if (sb && email && dados.senha && email.includes("@")) {
       const { data, error } = await sb.auth.signUp({ email, password: dados.senha });
       if (error) return error.message;
       if (data.user) {
@@ -424,6 +427,9 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
         ? [...s.contas.filter((c) => c.email !== email), { email, senha: dados.senha || "", userId: novo.id }]
         : s.contas,
     }));
+    if (sb && email && !email.includes("@") && dados.senha) {
+      await sb.from("contas_cpf").upsert({ cpf: email, senha: dados.senha, nome: novo.nome, cidade: novo.cidade, uf: novo.uf || "", user_id: novo.id });
+    }
     return "ok";
   }
 
@@ -436,16 +442,35 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function login(email: string, senha: string) {
+    const bruto = email.trim().toLowerCase();
+    const chave = bruto.includes("@") ? bruto : bruto.replace(/\D/g, "");
     const sb = getSupabase();
-    if (sb) {
-      const { data, error } = await sb.auth.signInWithPassword({ email: email.trim().toLowerCase(), password: senha });
+    if (sb && !chave.includes("@")) {
+      const { data: row } = await sb.from("contas_cpf").select("*").eq("cpf", chave).maybeSingle();
+      if (row && row.senha === senha) {
+        setEstado((s) => ({
+          ...s,
+          euId: row.user_id,
+          contas: [...s.contas.filter((x) => x.email !== chave), { email: chave, senha, userId: row.user_id }],
+        }));
+        return "ok";
+      }
+      if (row) return "CPF ou senha errados.";
+    }
+    if (sb && chave.includes("@")) {
+      const { data, error } = await sb.auth.signInWithPassword({ email: chave, password: senha });
       if (error) {
         const e = email.trim().toLowerCase();
         if (e === ADMIN_EMAIL && senha === ADMIN_SENHA) {
           setEstado((s) => ({ ...s, euId: ADMIN_ID }));
           return "ok";
         }
-        return error.message;
+        const local = estado.contas.find((x) => x.email === e && x.senha === senha);
+        if (local) {
+          setEstado((s) => ({ ...s, euId: local.userId }));
+          return "ok";
+        }
+        return error.message === "Email logins are disabled" ? "E-mail ou senha. Tenta o dono ou liga Email no Supabase." : error.message;
       }
       const uid = data.user?.id;
       if (uid) {

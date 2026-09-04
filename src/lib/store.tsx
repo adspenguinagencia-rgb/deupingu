@@ -752,13 +752,13 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     if (dataUrl.startsWith("data:")) url = await enviarMidia(dataUrl, `${estado.euId}/avatar`);
     const sb = getSupabase();
     const conta = estado.contas.find((c) => c.userId === estado.euId);
-    if (conta && !String(conta.email).includes("@")) {
+    {
       const res = await fetch("/api/salvar-perfil", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          cpf: conta.email,
-          senha: conta.senha,
+          cpf: (conta && !String(conta.email).includes("@") ? conta.email : estado.euId),
+          senha: conta?.senha || "-",
           userId: estado.euId,
           foto: url,
           nome: eu.nome,
@@ -774,6 +774,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
       });
       const j = await res.json();
       if (!j.ok) return "Não salvou a foto: " + (j.error || "erro");
+      if (j.foto) url = j.foto;
     }
     setEstado((s) => patchEu(s, (u) => ({ ...u, avatar: url, fotos: [url, ...u.fotos.slice(0, 5)] })));
     return "ok";

@@ -570,6 +570,40 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     const chave = bruto.includes("@") ? bruto : bruto.replace(/\D/g, "");
     const local = estado.contas.find((x) => x.email === chave && x.senha === senha);
     if (local) {
+      const sbLocal = getSupabase();
+      if (sbLocal && !chave.includes("@")) {
+        const { data: row } = await sbLocal.from("contas_cpf").select("*").eq("cpf", chave).maybeSingle();
+        if (row) {
+          setEstado((s) => ({
+            ...s,
+            euId: row.user_id || local.userId,
+            contas: s.contas.map((c) => (c.email === chave ? { ...c, userId: row.user_id || c.userId, chave: row.chave || c.chave } : c)),
+            usuariosExtra: upsertUser(s.usuariosExtra, {
+              ...(s.usuariosExtra.find((u) => u.id === (row.user_id || local.userId)) || {
+                id: row.user_id || local.userId,
+                nome: row.nome || "Pinguim",
+                idade: row.idade || 25,
+                cidade: row.cidade || "",
+                uf: row.uf || "",
+                intencao: (row.intencao as Intencao) || "Aberto a conhecer",
+                quemSouEu: row.frase || "",
+                comunidades: [],
+                avaliacoes: { legal: 50, confiavel: 50, sexy: 50 },
+                fotos: [],
+                avatarCor: "#EC407A",
+                acento: "#EC407A",
+              }),
+              id: row.user_id || local.userId,
+              nome: row.nome || "Pinguim",
+              idade: row.idade || 25,
+              cidade: row.cidade || "",
+              avatar: row.foto || undefined,
+              fotos: row.foto ? [row.foto] : [],
+            }),
+          }));
+          return "ok";
+        }
+      }
       setEstado((s) => ({ ...s, euId: local.userId }));
       return "ok";
     }

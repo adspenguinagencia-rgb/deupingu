@@ -112,7 +112,7 @@ export function HeaderPingu() {
           { href: "/pinguads", label: "Ads" },
           { href: `/perfil/${eu.id}`, label: "Perfil" },
         ].map((l) => (
-          <Link key={l.href} href={l.href} className="py-3 text-center text-[11px] font-bold text-[#ff5a9a]">
+          <Link key={l.href} href={l.href} className="py-3.5 text-center text-sm font-bold text-[#ff5a9a]">
             {l.label}
           </Link>
         ))}

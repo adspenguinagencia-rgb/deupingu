@@ -41,8 +41,18 @@ body {
 }
 
 @media (max-width: 768px) {
+  html,
+  body {
+    font-size: 17px;
+  }
   .card {
     border-radius: 18px;
+  }
+  .card p,
+  article p,
+  .card a {
+    font-size: 16px;
+    line-height: 1.45;
   }
   input, select, textarea, button {
     font-size: 16px;

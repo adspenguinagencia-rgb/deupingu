@@ -29,7 +29,7 @@ export function HeaderPingu() {
           <Link href="/" className="flex items-center gap-2 shrink-0">
             <LogoPingu />
             <span className="font-[family-name:var(--font-display)] text-xl font-extrabold text-[#ff5a9a]">
-              Deu pingu
+              Deu Pingo
             </span>
           </Link>
           <nav className="mx-auto hidden items-center gap-1 md:flex">
@@ -112,7 +112,7 @@ export function HeaderPingu() {
           { href: "/pinguads", label: "Ads", icon: "📣" },
           { href: `/perfil/${eu.id}`, label: "Perfil", icon: "☺" },
         ].map((l, i) => (
-          <Link key={l.href} href={l.href} className={`flex flex-col items-center gap-0.5 px-1 py-2 text-[#ff5a9a] ${i === 2 ? "border-l-2 border-[#ffb7d0]" : ""}`}>
+          <Link key={l.href} href={l.href} className={`flex flex-col items-center gap-0.5 px-1 py-2 text-[#ff5a9a] ${i === 1 ? "pr-3" : ""} ${i === 2 ? "ml-2 border-l-2 border-[#ffb7d0] pl-3" : ""}`}>
             <span className="text-lg leading-none">{l.icon}</span>
             <span className="text-[10px] font-bold leading-tight">{l.label}</span>
           </Link>

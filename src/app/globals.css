@@ -90,13 +90,13 @@ body {
 
 .btn-crush {
   border-radius: 999px;
-  background: linear-gradient(180deg, #ff7eb3 0%, #ff2d78 55%, #e01262 100%);
+  background: linear-gradient(180deg, #ff4fa3 0%, #ff007a 40%, #ff0090 100%);
   color: #fff;
   font-size: 14px;
   font-weight: 800;
   letter-spacing: 0.02em;
   padding: 10px 18px;
-  box-shadow: 0 10px 22px rgba(255, 45, 120, 0.38);
+  box-shadow: 0 10px 22px rgba(255, 0, 122, 0.55);
   border: 1px solid rgba(255,255,255,.45);
 }
 .btn-crush:disabled { opacity: .75; }

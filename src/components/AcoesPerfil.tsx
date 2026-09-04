@@ -41,7 +41,7 @@ export function AcoesPerfil({ alvoId }: { alvoId: string }) {
         {segue(alvoId) ? "Deixar de seguir" : "Seguir"}
       </button>
       <button type="button" className="btn-crush w-full" onClick={() => crush(alvoId)} disabled={jaCrush && !match}>
-        {match ? "♥ Deu Pingu" : jaCrush ? "♥ Crush secreto enviado" : recebeu ? "♥ Mandar crush de volta" : "♥ Crush secreto"}
+        {match ? "♥ Deu Pingo" : jaCrush ? "♥ Crush secreto enviado" : recebeu ? "♥ Mandar crush de volta" : "♥ Crush secreto"}
       </button>
 
       <Link href="/conversas" className="btn-secundario inline-block">

@@ -55,10 +55,10 @@ export default function ConversasPage() {
                 <p className="text-sm text-[var(--texto-2)]">
                   {c.de === eu.id
                     ? match
-                      ? "Deu Pingu! Crush secreto mútuo."
+                      ? "Deu Pingo! Crush secreto mútuo."
                       : "Você mandou crush secreto."
                     : match
-                      ? "Deu Pingu! Vocês se acharam."
+                      ? "Deu Pingo! Vocês se acharam."
                       : "Mandou um crush secreto."}
                 </p>
                 {recebi && (
@@ -127,7 +127,7 @@ export default function ConversasPage() {
       <section className="card space-y-3 p-4">
         <h2 className="font-bold">Conversas</h2>
         {pessoasChat.length === 0 && (
-          <p className="text-sm text-[var(--texto-3)]">Chat abre depois do Deu Pingu.</p>
+          <p className="text-sm text-[var(--texto-3)]">Chat abre depois do Deu Pingo.</p>
         )}
         <div className="flex flex-wrap gap-2">
           {pessoasChat.map((u) =>

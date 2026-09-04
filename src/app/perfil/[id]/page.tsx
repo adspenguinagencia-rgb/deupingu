@@ -53,7 +53,7 @@ export default function PerfilPage({ params }: { params: Promise<{ id: string }>
           </p>
           <span className="chip mt-2 inline-block">{usuario.intencao}</span>
           {ehMatch(eu.id, usuario.id) && (
-            <p className="mt-2 font-bold text-[var(--rosa-escuro)]">Deu Pingu com você.</p>
+            <p className="mt-2 font-bold text-[var(--rosa-escuro)]">Deu Pingo com você.</p>
           )}
 
           <VotosOrkut alvoId={usuario.id} />

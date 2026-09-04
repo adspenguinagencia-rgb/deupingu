@@ -148,7 +148,7 @@ const inicial: Estado = {
   usuariosExtra: [
     {
       id: ADMIN_ID,
-      nome: "Dono Deu pingu",
+      nome: "Dono Deu Pingo",
       idade: 30,
       cidade: "São Paulo",
       intencao: "Só trabalho",
@@ -355,7 +355,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
       cidade: dados.cidade.trim(),
       uf: dados.uf || "",
       intencao: dados.intencao,
-      quemSouEu: "Acabei de entrar no Deu pingu. Manda um scrap.",
+      quemSouEu: "Acabei de entrar no Deu Pingo. Manda um scrap.",
       comunidades: [],
       seguindo: [],
       avaliacoes: { legal: 50, confiavel: 50, sexy: 50 },
@@ -474,7 +474,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     if (erro) return erro;
     const msg: Mensagem = { id: "m" + Date.now(), de: estado.euId, para, texto };
     const auto = usuariosBase.some((u) => u.id === para)
-      ? [{ id: "m" + (Date.now() + 1), de: para, para: estado.euId, texto: "Deu Pingu! Vi seu recado." }]
+      ? [{ id: "m" + (Date.now() + 1), de: para, para: estado.euId, texto: "Deu Pingo! Vi seu recado." }]
       : [];
     setEstado((s) => ({ ...s, mensagens: [...s.mensagens, msg, ...auto] }));
   }
@@ -682,7 +682,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
       slug,
       nome: nome.trim(),
       membros: "1",
-      descricao: descricao?.trim() || "Comunidade criada agora no Deu pingu.",
+      descricao: descricao?.trim() || "Comunidade criada agora no Deu Pingo.",
       cor: "#EC407A",
       donoId: estado.euId,
       capa,

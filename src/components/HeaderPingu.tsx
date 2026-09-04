@@ -104,14 +104,15 @@ export function HeaderPingu() {
           </div>
         </div>
       </header>
-      <nav className="fixed bottom-0 left-0 right-0 z-40 grid grid-cols-4 border-t border-[#f3d4e0] bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 grid grid-cols-5 border-t border-[#f3d4e0] bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
         {[
           { href: "/", label: "Feed" },
           { href: "/comunidades", label: "Comunidade" },
           { href: "/conversas", label: "Msg" },
+          { href: "/pinguads", label: "Ads" },
           { href: `/perfil/${eu.id}`, label: "Perfil" },
         ].map((l) => (
-          <Link key={l.href} href={l.href} className="px-1 py-3 text-center text-[11px] font-bold leading-tight text-[#ff5a9a]">
+          <Link key={l.href} href={l.href} className="px-0.5 py-3 text-center text-sm font-bold leading-tight text-[#ff5a9a]">
             {l.label}
           </Link>
         ))}

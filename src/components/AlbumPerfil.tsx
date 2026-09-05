@@ -1,6 +1,6 @@
 "use client";
 
-import { EditarPost } from "@/components/EditarPost";
+import { EditarPost, MenuExcluir } from "@/components/EditarPost";
 import { Reacoes } from "@/components/Reacoes";
 import { usePingu } from "@/lib/store";
 import { useState } from "react";
@@ -36,6 +36,8 @@ export function AlbumPerfil({ userId }: { userId: string }) {
       <div className="grid grid-cols-3 gap-1 sm:gap-2">
         {midias.map((m) => (
           <div key={m.id} className="space-y-1">
+            <div className="relative">
+            <MenuExcluir postId={m.id} autorId={userId} />
             <button type="button" onClick={() => setAberto(m)} className="block w-full">
               {m.video ? (
                 <video src={m.midia} className="aspect-square w-full rounded-lg object-cover" />
@@ -44,6 +46,7 @@ export function AlbumPerfil({ userId }: { userId: string }) {
                 <img src={m.midia} alt="" className="aspect-square w-full rounded-lg object-cover" />
               )}
             </button>
+            </div>
             {m.texto && <p className="line-clamp-2 px-0.5 text-[11px] text-[var(--texto-2)]">{m.texto}</p>}
             {dono && <EditarPost postId={m.id} autorId={userId} legenda={m.texto} />}
             <Reacoes alvo={m.id} />

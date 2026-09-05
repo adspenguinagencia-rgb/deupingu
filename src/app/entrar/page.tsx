@@ -2,6 +2,7 @@
 
 import { type Intencao } from "@/data/mock";
 import { ADMIN_EMAIL, usePingu } from "@/lib/store";
+import { getSupabase } from "@/lib/supabase";
 import { TEXTO_REGRAS } from "@/lib/moderacao";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -71,14 +72,21 @@ export default function EntrarPage() {
       {modo === "esqueci" ? (
         <form
           className="mt-4 space-y-3"
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
             setErro("");
             setOk("");
             const zap = email.includes("@") ? email.trim().toLowerCase() : email.replace(/\D/g, "");
-            const c = estado.contas.find((x) => x.email === zap);
-            if (!c) return setErro("WhatsApp não encontrado neste aparelho.");
-            if ((c.chave || "").toUpperCase() !== senha2.replace(/\s/g, "").toUpperCase()) return setErro("Código de recuperação errado.");
+            const codigo = senha2.replace(/\s/g, "").toUpperCase();
+            const local = estado.contas.find((x) => x.email === zap);
+            let chaveOk = (local?.chave || "").toUpperCase() === codigo;
+            const sb = getSupabase();
+            if (sb && !zap.includes("@")) {
+              const { data: row } = await sb.from("contas_cpf").select("chave").eq("cpf", zap).maybeSingle();
+              if (row?.chave && String(row.chave).toUpperCase() === codigo) chaveOk = true;
+              if (!row) return setErro("Número ou senha errado.");
+            }
+            if (!chaveOk) return setErro("Código de recuperação errado.");
             const r = redefinirSenha(zap, senha);
             if (r !== "ok") return setErro(r);
             setOk("Senha nova salva. Entra em Já tenho conta.");

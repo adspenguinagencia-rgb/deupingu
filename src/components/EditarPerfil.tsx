@@ -17,7 +17,9 @@ const intencoes: Intencao[] = [
 ];
 
 export function EditarPerfil() {
-  const { eu, editarPerfil, estado, garantirChave } = usePingu();
+  const { eu, editarPerfil, estado, garantirChave, redefinirSenha } = usePingu();
+  const [senhaNova, setSenhaNova] = useState("");
+  const [senhaNova2, setSenhaNova2] = useState("");
   useEffect(() => {
     garantirChave();
   }, [eu.id]);
@@ -56,6 +58,12 @@ export function EditarPerfil() {
       onSubmit={async (e) => {
         e.preventDefault();
         if (!cidade.trim() || !uf) return;
+        if (senhaNova || senhaNova2) {
+          if (senhaNova !== senhaNova2) return alert("As duas senhas novas precisam ser iguais.");
+          if (senhaNova.length < 4) return alert("Senha nova muito curta.");
+          const conta = estado.contas.find((c) => c.userId === eu.id);
+          if (conta) redefinirSenha(conta.email, senhaNova);
+        }
         await editarPerfil({
           nome: nome.trim() || eu.nome,
           cidade: cidade.trim(),
@@ -112,6 +120,9 @@ export function EditarPerfil() {
         <input type="checkbox" checked={idadePublica} onChange={(e) => setIdadePublica(e.target.checked)} />
         Mostrar idade
       </label>
+      <p className="pt-2 text-sm font-bold">Mudar senha</p>
+      <input type="password" value={senhaNova} onChange={(e) => setSenhaNova(e.target.value)} placeholder="Senha nova" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
+      <input type="password" value={senhaNova2} onChange={(e) => setSenhaNova2(e.target.value)} placeholder="Repete a senha nova" className="w-full rounded-xl border border-[var(--borda)] px-3 py-2 text-sm" />
       <div className="flex gap-2">
         <button className="btn-primario" type="submit">
           Salvar

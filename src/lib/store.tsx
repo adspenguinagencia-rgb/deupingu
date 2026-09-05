@@ -101,6 +101,7 @@ type Estado = {
   campanhas: Campanha[];
   saldoAds: number;
   lastSeen: Record<string, number>;
+  apagados: string[];
 };
 
 const KEY = "pinguork-estado-v3";
@@ -210,7 +211,7 @@ const Ctx = createContext<{
   pedidoPendente: (slug: string) => boolean;
   apagarConta: () => void;
   redefinirSenha: (email: string, nova: string) => string;
-  garantirChave: () => string;
+  garantirChave: () => Promise<string> | string;
   pedirReset: (email: string) => { ok: string; link?: string } | { erro: string };
   resetComToken: (token: string, nova: string) => string;
   ehAdmin: boolean;
@@ -284,6 +285,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
           campanhas: parsed.campanhas || [],
           saldoAds: parsed.saldoAds || 0,
           lastSeen: parsed.lastSeen || {},
+          apagados: parsed.apagados || [],
           contas: [
             { email: ADMIN_EMAIL, senha: ADMIN_SENHA, userId: ADMIN_ID },
             ...(parsed.contas || []).filter((c: Conta) => c.email !== ADMIN_EMAIL),
@@ -377,7 +379,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
       if (!data) return;
       setEstado((s) => {
         const ids = new Set(s.stories.map((x) => x.id));
-        const novos = data.filter((r) => !ids.has(r.id)).map((r) => ({
+        const novos = data.filter((r) => !ids.has(r.id) && !(s.apagados || []).includes(r.id)).map((r) => ({
           id: r.id, autorId: r.autor_id, midia: r.midia || "", video: !!r.video, criadoEm: Number(r.criado_em) || Date.now(),
         }));
         return novos.length ? { ...s, stories: [...novos, ...s.stories] } : s;
@@ -415,7 +417,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
       setEstado((s) => {
         const ids = new Set(s.posts.map((p) => p.id));
         const extras: Post[] = data
-          .filter((row) => !ids.has(row.id))
+          .filter((row) => !ids.has(row.id) && !(s.apagados || []).includes(row.id))
           .map((row) => ({
             id: row.id,
             tipo: "foto" as const,
@@ -1052,27 +1054,38 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  function garantirChave() {
+  async function garantirChave() {
     const c = estado.contas.find((x) => x.userId === estado.euId);
     if (!c) return "";
+    const sb = getSupabase();
+    if (sb && c.email && !c.email.includes("@")) {
+      const { data: row } = await sb.from("contas_cpf").select("chave").eq("cpf", c.email).maybeSingle();
+      if (row?.chave) {
+        setEstado((s) => ({
+          ...s,
+          contas: s.contas.map((x) => (x.userId === s.euId ? { ...x, chave: row.chave } : x)),
+        }));
+        return row.chave as string;
+      }
+    }
     if (c.chave) return c.chave;
     const chave = Array.from({ length: 8 }, () => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 32)]).join("");
     setEstado((s) => ({
       ...s,
       contas: s.contas.map((x) => (x.userId === s.euId ? { ...x, chave } : x)),
     }));
-    const sb = getSupabase();
-    if (sb && c.email && !c.email.includes("@")) void sb.from("contas_cpf").update({ chave }).eq("cpf", c.email);
+    if (sb && c.email && !c.email.includes("@")) await sb.from("contas_cpf").update({ chave }).eq("cpf", c.email);
     return chave;
   }
 
   function redefinirSenha(email: string, nova: string) {
     const e = email.includes("@") ? email.trim().toLowerCase() : email.replace(/\D/g, "");
     const c = estado.contas.find((x) => x.email === e);
-    if (!c) return "Esse WhatsApp não tem conta neste navegador.";
     setEstado((s) => ({
       ...s,
-      contas: s.contas.map((x) => (x.email === e ? { ...x, senha: nova } : x)),
+      contas: c
+        ? s.contas.map((x) => (x.email === e ? { ...x, senha: nova } : x))
+        : [...s.contas, { email: e, senha: nova, userId: e }],
     }));
     const sb = getSupabase();
     if (sb && !e.includes("@")) void sb.from("contas_cpf").update({ senha: nova }).eq("cpf", e);
@@ -1186,7 +1199,13 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
   }
 
   function apagarStory(id: string) {
-    setEstado((s) => ({ ...s, stories: s.stories.filter((x) => !(x.id === id && x.autorId === s.euId)) }));
+    setEstado((s) => ({
+      ...s,
+      stories: s.stories.filter((x) => x.id !== id),
+      apagados: [...new Set([...(s.apagados || []), id])],
+    }));
+    const sb = getSupabase();
+    if (sb) void sb.from("stories").delete().eq("id", id);
   }
 
   function segue(id: string) {
@@ -1214,14 +1233,19 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
   }
 
   function apagarPost(id: string) {
-    const admin = estado.euId === ADMIN_ID || estado.contas.some((c) => c.userId === estado.euId && c.email === ADMIN_EMAIL);
     setEstado((s) => ({
       ...s,
       posts: s.posts.filter((p) => p.id !== id),
       postsComunidade: s.postsComunidade.filter((p) => p.id !== id),
       comentarios: s.comentarios.filter((c) => c.postId !== id && c.id !== id),
       stories: s.stories.filter((st) => st.id !== id),
+      apagados: [...new Set([...(s.apagados || []), id])],
     }));
+    const sb = getSupabase();
+    if (sb) {
+      void sb.from("posts").delete().eq("id", id);
+      void sb.from("stories").delete().eq("id", id);
+    }
   }
 
   function apagarComentario(id: string) {

@@ -412,6 +412,16 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
         return extra.length ? { ...s, crushes: [...s.crushes, ...extra] } : s;
       });
     });
+    void sb.from("apagados").select("id").then(({ data }) => {
+      if (!data) return;
+      const ids = data.map((r) => r.id as string);
+      setEstado((s) => ({
+        ...s,
+        apagados: [...new Set([...(s.apagados || []), ...ids])],
+        posts: s.posts.filter((p) => !ids.includes(p.id)),
+        stories: s.stories.filter((st) => !ids.includes(st.id)),
+      }));
+    });
     void sb.from("posts").select("*").order("created_at", { ascending: false }).then(({ data }) => {
       if (!data) return;
       setEstado((s) => {
@@ -1205,7 +1215,10 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
       apagados: [...new Set([...(s.apagados || []), id])],
     }));
     const sb = getSupabase();
-    if (sb) void sb.from("stories").delete().eq("id", id);
+    if (sb) {
+      void sb.from("stories").delete().eq("id", id);
+      void sb.from("apagados").upsert({ id });
+    }
   }
 
   function segue(id: string) {
@@ -1229,6 +1242,8 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
       ...s,
       posts: s.posts.map((p) => (p.id === id && p.autorId === s.euId ? { ...p, legenda } : p)),
     }));
+    const sb = getSupabase();
+    if (sb) void sb.from("posts").update({ legenda }).eq("id", id);
     return "ok";
   }
 
@@ -1245,6 +1260,7 @@ export function PinguProvider({ children }: { children: React.ReactNode }) {
     if (sb) {
       void sb.from("posts").delete().eq("id", id);
       void sb.from("stories").delete().eq("id", id);
+      void sb.from("apagados").upsert({ id });
     }
   }
 
